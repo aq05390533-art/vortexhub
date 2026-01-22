@@ -1,6 +1,6 @@
 --[[
-    VORTEX HUB V3 - SMART QUEST SYSTEM
-    Fixed: Teleport to Island → Take Quest → Farm Mobs
+    VORTEX HUB V3 - ANTI-KICK SYSTEM
+    Bypass Detection: NoClip + Checkpoint TP
 ]]--
 
 -- =============================================
@@ -36,8 +36,8 @@ ProtectScript()
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Vortex Hub V3 | Smart System",
-    SubTitle = "Island → Quest → Farm",
+    Title = "Vortex Hub V3 | Anti-Kick",
+    SubTitle = "Bypass Anti-Cheat System",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true,
@@ -84,11 +84,46 @@ getgenv().Config = {
     DistanceFromMob = 25,
     TweenSpeed = 350,
     UseQuest = true,
-    AttackDelay = 0.1
+    AttackDelay = 0.1,
+    BypassTP = true,
+    InstantTP = false -- ✅ خيار جديد
 }
 
 -- =============================================
--- QUEST DATA - مع مواقع الجزر + مواقع الـ Mobs
+-- NOCLIP SYSTEM
+-- =============================================
+local NoClipConnection
+function EnableNoClip()
+    if NoClipConnection then return end
+    
+    NoClipConnection = RunService.Stepped:Connect(function()
+        if Character then
+            for _, part in pairs(Character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
+        end
+    end)
+end
+
+function DisableNoClip()
+    if NoClipConnection then
+        NoClipConnection:Disconnect()
+        NoClipConnection = nil
+    end
+    
+    if Character then
+        for _, part in pairs(Character:GetDescendants()) do
+            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                part.CanCollide = true
+            end
+        end
+    end
+end
+
+-- =============================================
+-- QUEST DATA
 -- =============================================
 local QuestList = {
     -- ========== FIRST SEA ==========
@@ -133,7 +168,7 @@ local QuestList = {
      QuestPos = CFrame.new(117.91, 73.10, -12319.44),
      MobPos = CFrame.new(58.91, 73.10, -12379.18)},
      
-    -- ========== THIRD SEA - COMPLETE ==========
+    -- ========== THIRD SEA ==========
     {Lvl = {1500, 1524}, Quest = "Area1Quest", QuestLvl = 1, Enemy = "Pirate Millionaire", 
      QuestPos = CFrame.new(-288.61, 43.82, 5579.86),
      MobPos = CFrame.new(-435.68, 43.82, 5583.66)},
@@ -194,7 +229,7 @@ local QuestList = {
      QuestPos = CFrame.new(5251.51, 51.61, -1655.34),
      MobPos = CFrame.new(5145.51, 51.61, -1655.34)},
      
-    -- ========== HAUNTED CASTLE - FIXED 100% ==========
+    -- ========== HAUNTED CASTLE ==========
     {Lvl = {2025, 2049}, Quest = "HauntedQuest1", QuestLvl = 1, Enemy = "Living Zombie", 
      QuestPos = CFrame.new(-9479.43, 141.22, 5566.09),
      MobPos = CFrame.new(-10144.07, 138.65, 5975.96)},
@@ -261,9 +296,8 @@ local QuestList = {
 }
 
 -- =============================================
--- FUNCTIONS
+-- IMPROVED TELEPORT WITH BYPASS
 -- =============================================
-
 function GetQuestData()
     local Level = Player.Data.Level.Value
     
@@ -276,24 +310,71 @@ function GetQuestData()
     return QuestList[1]
 end
 
-function TweenToPosition(pos)
-    if not Character or not RootPart then return end
+-- ========== BYPASS TELEPORT SYSTEM ==========
+function BypassTeleport(targetPos)
+    if not RootPart then return end
     
-    local Distance = (pos.Position - RootPart.Position).Magnitude
+    local Distance = (targetPos.Position - RootPart.Position).Magnitude
     
-    if Distance < 250 then
-        RootPart.CFrame = pos
+    -- إذا قريب، ننتقل عادي
+    if Distance < 1000 then
+        local Tween = TweenService:Create(
+            RootPart,
+            TweenInfo.new(Distance / getgenv().Config.TweenSpeed, Enum.EasingStyle.Linear),
+            {CFrame = targetPos}
+        )
+        Tween:Play()
+        Tween.Completed:Wait()
         return
     end
     
-    local Speed = getgenv().Config.TweenSpeed
-    local TweenInfo = TweenInfo.new(Distance / Speed, Enum.EasingStyle.Linear)
+    -- إذا بعيد، نقسم المسافة على Checkpoints
+    EnableNoClip()
     
-    local Tween = TweenService:Create(RootPart, TweenInfo, {CFrame = pos})
-    Tween:Play()
+    local Checkpoints = math.floor(Distance / 1000)
+    local Direction = (targetPos.Position - RootPart.Position).Unit
     
-    Tween.Completed:Wait()
+    print("🚀 Bypassing TP with " .. Checkpoints .. " checkpoints...")
+    
+    for i = 1, Checkpoints do
+        local CheckpointPos = RootPart.Position + (Direction * 1000)
+        RootPart.CFrame = CFrame.new(CheckpointPos)
+        wait(0.1)
+    end
+    
+    -- الوصول للهدف النهائي
+    RootPart.CFrame = targetPos
+    wait(0.5)
+    
+    DisableNoClip()
 end
+
+-- ========== INSTANT TP (خطير - قد يسبب Kick) ==========
+function InstantTP(targetPos)
+    if not RootPart then return end
+    
+    EnableNoClip()
+    RootPart.CFrame = targetPos
+    wait(0.5)
+    DisableNoClip()
+end
+
+-- ========== MAIN TELEPORT FUNCTION ==========
+function TweenToPosition(pos, description)
+    if not RootPart then return end
+    
+    print("📍 " .. (description or "Traveling") .. "...")
+    
+    if getgenv().Config.InstantTP then
+        InstantTP(pos)
+    else
+        BypassTeleport(pos)
+    end
+end
+
+-- =============================================
+-- OTHER FUNCTIONS
+-- =============================================
 
 function EquipWeapon(weaponName)
     pcall(function()
@@ -341,40 +422,35 @@ function CheckQuest(enemyName)
     return false
 end
 
--- ========== NEW SMART QUEST SYSTEM ==========
 function TakeQuest(questData)
     if not getgenv().Config.UseQuest then return end
     
-    -- لو الكويست موجود بالفعل، ما نعيد ناخذه
     if CheckQuest(questData.Enemy) then 
         return true
     end
     
-    -- الخطوة 1: الذهاب للجزيرة (موقع الكويست)
-    print("📍 Going to Quest Island...")
-    TweenToPosition(questData.QuestPos)
-    wait(1.5)
+    print("📜 Taking Quest: " .. questData.Enemy)
     
-    -- الخطوة 2: الوقوف قدام الـ NPC بالضبط
-    print("🚶 Approaching Quest Giver...")
-    RootPart.CFrame = questData.QuestPos * CFrame.new(0, 2, -3)
+    -- الذهاب للـ Quest Giver
+    TweenToPosition(questData.QuestPos, "Going to Quest Giver")
     wait(1)
     
-    -- الخطوة 3: أخذ الكويست
-    print("📜 Taking Quest...")
+    -- قرب من الـ NPC
+    RootPart.CFrame = questData.QuestPos * CFrame.new(0, 2, -3)
+    wait(0.8)
+    
+    -- أخذ الكويست
     ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", questData.Quest, questData.QuestLvl)
     wait(1.5)
     
-    -- الخطوة 4: التأكد إن الكويست اتاخد
+    -- محاولة ثانية لو فشل
     if not CheckQuest(questData.Enemy) then
-        print("⚠️ Quest failed, retrying...")
         RootPart.CFrame = questData.QuestPos * CFrame.new(0, 0, -2)
-        wait(0.8)
+        wait(0.5)
         ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", questData.Quest, questData.QuestLvl)
         wait(1)
     end
     
-    -- الخطوة 5: التأكد النهائي
     if CheckQuest(questData.Enemy) then
         print("✅ Quest Accepted!")
         return true
@@ -403,7 +479,7 @@ function BringMob(mob)
 end
 
 -- =============================================
--- MAIN FARM LOOP - SMART VERSION
+-- MAIN FARM LOOP
 -- =============================================
 local FarmLoop
 function StartFarm()
@@ -418,16 +494,16 @@ function StartFarm()
         pcall(function()
             local Quest = GetQuestData()
             
-            -- ========== STEP 1: Take Quest ==========
+            -- خطوة 1: أخذ الكويست
             if not CheckQuest(Quest.Enemy) then
                 StopFastAttack()
-                print("🎯 Current Quest: " .. Quest.Enemy)
+                print("🎯 Target: " .. Quest.Enemy)
                 TakeQuest(Quest)
                 wait(2)
                 return
             end
             
-            -- ========== STEP 2: Find Enemy ==========
+            -- خطوة 2: البحث عن العدو
             local Enemy = nil
             for _, mob in pairs(game.Workspace.Enemies:GetChildren()) do
                 if mob.Name == Quest.Enemy and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
@@ -436,7 +512,7 @@ function StartFarm()
                 end
             end
             
-            -- ========== STEP 3: Farm Enemy ==========
+            -- خطوة 3: القتال
             if Enemy and Enemy:FindFirstChild("HumanoidRootPart") then
                 EnableHaki()
                 EquipWeapon(getgenv().Config.SelectedWeapon)
@@ -450,11 +526,11 @@ function StartFarm()
                 
                 BringMob(Enemy)
             else
-                -- لو ما لقينا Enemies، نروح مكان spawn الـ Mobs
                 StopFastAttack()
                 if Quest.MobPos then
-                    print("🔍 Searching for " .. Quest.Enemy .. "...")
-                    TweenToPosition(Quest.MobPos)
+                    print("🔍 Searching for mobs...")
+                    TweenToPosition(Quest.MobPos, "Going to Mob Spawn")
+                    wait(3)
                 end
             end
         end)
@@ -467,6 +543,7 @@ function StopFarm()
         FarmLoop = nil
     end
     StopFastAttack()
+    DisableNoClip()
     if Humanoid then Humanoid.AutoRotate = true end
 end
 
@@ -503,7 +580,7 @@ FarmToggle:OnChanged(function(v)
         local Quest = GetQuestData()
         Fluent:Notify({
             Title = "Vortex Hub", 
-            Content = "Farming: " .. Quest.Enemy .. " (Lvl " .. Quest.Lvl[1] .. "-" .. Quest.Lvl[2] .. ")", 
+            Content = "Farming: " .. Quest.Enemy, 
             Duration = 5
         })
     else
@@ -516,6 +593,16 @@ end)
 Tabs.Settings:AddToggle("BringMobs", {Title = "Bring Mobs", Default = true}):OnChanged(function(v) getgenv().Config.BringMobs = v end)
 Tabs.Settings:AddToggle("AutoHaki", {Title = "Auto Haki", Default = true}):OnChanged(function(v) getgenv().Config.AutoHaki = v end)
 Tabs.Settings:AddToggle("UseQuest", {Title = "Use Quests", Default = true}):OnChanged(function(v) getgenv().Config.UseQuest = v end)
+
+Tabs.Settings:AddToggle("InstantTP", {
+    Title = "⚠️ Instant TP (Risky)", 
+    Default = false
+}):OnChanged(function(v) 
+    getgenv().Config.InstantTP = v 
+    if v then
+        Fluent:Notify({Title = "Warning", Content = "Instant TP may cause kicks!", Duration = 5})
+    end
+end)
 
 Tabs.Settings:AddSlider("Distance", {
     Title = "Distance from Mob",
@@ -580,8 +667,8 @@ Window:SelectTab(1)
 
 Fluent:Notify({
     Title = "Vortex Hub V3",
-    Content = "Smart Quest System Loaded! Level: " .. Player.Data.Level.Value,
+    Content = "Anti-Kick System Loaded! Level: " .. Player.Data.Level.Value,
     Duration = 5
 })
 
-print("✅ Vortex Hub V3 | Smart Quest System | Loaded Successfully")
+print("✅ Vortex Hub V3 | Anti-Kick System | Level: " .. Player.Data.Level.Value)

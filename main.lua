@@ -1,261 +1,168 @@
 --[[
-    ╔════════════════════════════════════════════╗
-    ║            VORTEX HUB V2.0                 ║
-    ║      Best Blox Fruits Script 2025          ║
-    ║         Made by aq05390533-art             ║
-    ╚════════════════════════════════════════════╝
+    VORTEX HUB - Premium UI
+    Style: Fluent (Like the image provided)
 ]]--
 
-repeat wait() until game:IsLoaded()
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
--- تحميل المكتبة (بدون شعار أبدًا)
-local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
-local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
-local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
-local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
-
--- إنشاء النافذة
-local Window = Library:CreateWindow({
-    Title = '🔥 Vortex Hub | Team: '..(getgenv().Team or "Marines"),
-    Center = true,
-    AutoShow = true,
-    TabPadding = 8,
-    MenuFadeTime = 0.2
+local Window = Fluent:CreateWindow({
+    Title = "Vortex Hub " .. "v2.0",
+    SubTitle = "by aq05390533-art",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true, -- يخلي الخلفية شفافة وضبابية زي الصورة
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
 })
 
--- إشعار الترحيب
-Library:Notify('🔥 Vortex Hub Loaded Successfully! Enjoy <3', 5)
+-- إنشاء التبويبات (القائمة الجانبية)
+local Tabs = {
+    Farm = Window:AddTab({ Title = "Farm", Icon = "sword" }),
+    Stats = Window:AddTab({ Title = "Stats", Icon = "bar-chart-2" }),
+    Teleport = Window:AddTab({ Title = "Teleport", Icon = "map" }),
+    Raids = Window:AddTab({ Title = "Raids", Icon = "skull" }),
+    Shop = Window:AddTab({ Title = "Shop", Icon = "shopping-cart" }),
+    Misc = Window:AddTab({ Title = "Misc", Icon = "settings" })
+}
 
--- ============================================
--- تبويب Main (الأوتو فارم)
--- ============================================
-local MainTab = Window:AddTab('Main')
+local Options = Fluent.Options
 
-local FarmGroup = MainTab:AddLeftGroupbox('⚔️ Auto Farm')
+-- =============================================
+-- تبويب Farm (زي الصورة بالضبط)
+-- =============================================
 
-FarmGroup:AddToggle('AutoFarmLevel', {
-    Text = '🚀 Auto Farm Level',
-    Default = false,
-    Tooltip = 'Best auto farm method 2025',
-    Callback = function(Value)
-        getgenv().AutoFarm = Value
-        if Value then
-            Library:Notify('Auto Farm Started!', 3)
-            -- هنا كود الأوتو فارم
-            spawn(function()
-                while getgenv().AutoFarm do
-                    wait(0.1)
-                    -- Your auto farm code here
-                end
-            end)
-        else
-            Library:Notify('Auto Farm Stopped!', 3)
-        end
-    end
-})
-
-FarmGroup:AddToggle('AutoFarmMastery', {
-    Text = '⚔️ Auto Farm Mastery',
-    Default = false,
-    Tooltip = 'Farm mastery for weapons',
-})
-
-FarmGroup:AddToggle('AutoFarmBones', {
-    Text = '💀 Auto Farm Bones',
-    Default = false,
-    Tooltip = 'Farm bones in Haunted Castle',
-})
-
-FarmGroup:AddDivider()
-
-FarmGroup:AddToggle('AutoFarmEctoplasm', {
-    Text = '👻 Auto Farm Ectoplasm',
-    Default = false,
-})
-
--- المجموعة اليمنى - البوس
-local BossGroup = MainTab:AddRightGroupbox('👑 Boss Farm')
-
-BossGroup:AddToggle('AutoBoss', {
-    Text = '🎯 Auto Farm All Boss',
-    Default = false,
-})
-
-BossGroup:AddDropdown('SelectBoss', {
-    Values = { 'Darkbeard', 'Order', 'Cursed Captain', 'Soul Reaper', 'Rip Indra' },
-    Default = 1,
+Tabs.Farm:AddDropdown("WeaponSelect", {
+    Title = "Select Weapon",
+    Values = {"Melee", "Sword", "Blox Fruit"},
     Multi = false,
-    Text = 'Select Boss',
+    Default = 1,
 })
 
-BossGroup:AddToggle('AutoMirage', {
-    Text = '🌊 Auto Mirage Island',
-    Default = false,
-    Tooltip = 'Auto farm mirage island + gear',
+Tabs.Farm:AddSection("Auto Farm")
+
+local FarmToggle = Tabs.Farm:AddToggle("AutoFarmLevel", {
+    Title = "Auto Farm Level",
+    Description = "Fastest method to max level",
+    Default = false
 })
 
--- ============================================
--- تبويب Stats
--- ============================================
-local StatsTab = Window:AddTab('Stats')
-
-local StatsGroup = StatsTab:AddLeftGroupbox('⚡ Auto Stats')
-
-StatsGroup:AddToggle('AutoStats', {
-    Text = '🎯 Enable Auto Stats',
-    Default = false,
-    Callback = function(Value)
-        getgenv().AutoStats = Value
+FarmToggle:OnChanged(function()
+    getgenv().AutoFarm = Options.AutoFarmLevel.Value
+    if Options.AutoFarmLevel.Value then
+        Fluent:Notify({
+            Title = "Vortex Hub",
+            Content = "Auto Farm Started!",
+            Duration = 3
+        })
+        -- كود التشغيل يجي هنا
     end
-})
-
-StatsGroup:AddDivider()
-
-StatsGroup:AddSlider('MeleePercent', {
-    Text = 'Melee %',
-    Default = 33,
-    Min = 0,
-    Max = 100,
-    Rounding = 0,
-    Compact = false,
-})
-
-StatsGroup:AddSlider('DefensePercent', {
-    Text = 'Defense %',
-    Default = 33,
-    Min = 0,
-    Max = 100,
-    Rounding = 0,
-    Compact = false,
-})
-
-StatsGroup:AddSlider('SwordPercent', {
-    Text = 'Sword %',
-    Default = 34,
-    Min = 0,
-    Max = 100,
-    Rounding = 0,
-    Compact = false,
-})
-
--- Combat Settings
-local CombatGroup = StatsTab:AddRightGroupbox('⚔️ Combat')
-
-CombatGroup:AddToggle('AutoHaki', {
-    Text = '🔥 Auto Haki',
-    Default = false,
-})
-
-CombatGroup:AddToggle('AutoObservation', {
-    Text = '👁️ Auto Observation',
-    Default = false,
-})
-
-CombatGroup:AddButton({
-    Text = '💪 Reset Character',
-    Func = function()
-        game.Players.LocalPlayer.Character.Humanoid.Health = 0
-    end,
-    DoubleClick = true,
-})
-
--- ============================================
--- تبويب Misc
--- ============================================
-local MiscTab = Window:AddTab('Misc')
-
-local UtilityGroup = MiscTab:AddLeftGroupbox('🔧 Utilities')
-
-UtilityGroup:AddButton({
-    Text = '💨 FPS Boost',
-    Func = function()
-        for i,v in pairs(game:GetDescendants()) do
-            if v:IsA("Part") or v:IsA("UnionOperation") or v:IsA("MeshPart") then
-                v.Material = "Plastic"
-                v.Reflectance = 0
-            elseif v:IsA("Decal") or v:IsA("Texture") then
-                v.Transparency = 1
-            elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
-                v.Lifetime = NumberRange.new(0)
-            end
-        end
-        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-        Library:Notify('FPS Boost Applied! +60 FPS', 4)
-    end,
-})
-
-UtilityGroup:AddButton({
-    Text = '🌐 Server Hop',
-    Func = function()
-        Library:Notify('Searching for best server...', 2)
-        -- Server hop code here
-    end,
-})
-
-UtilityGroup:AddButton({
-    Text = '🔄 Rejoin Server',
-    Func = function()
-        game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
-    end,
-})
-
-UtilityGroup:AddDivider()
-
-UtilityGroup:AddToggle('AntiAFK', {
-    Text = '⏰ Anti AFK',
-    Default = true,
-})
-
--- Player Settings
-local PlayerGroup = MiscTab:AddRightGroupbox('👤 Player')
-
-PlayerGroup:AddSlider('WalkSpeed', {
-    Text = 'Walk Speed',
-    Default = 16,
-    Min = 16,
-    Max = 100,
-    Rounding = 0,
-    Callback = function(Value)
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
-    end
-})
-
-PlayerGroup:AddSlider('JumpPower', {
-    Text = 'Jump Power',
-    Default = 50,
-    Min = 50,
-    Max = 150,
-    Rounding = 0,
-    Callback = function(Value)
-        game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
-    end
-})
-
--- ============================================
--- تبويب Settings (الثيمات)
--- ============================================
-local MenuGroup = MiscTab:AddLeftGroupbox('⚙️ Menu')
-MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'End', NoUI = true, Text = 'Menu keybind' })
-MenuGroup:AddButton('Unload', function() Library:Unload() end)
-
-local ThemeManager = MiscTab:AddRightGroupbox('🎨 Themes')
-ThemeManager:AddLabel('Background color'):AddColorPicker('BackgroundColor', { Default = Color3.fromRGB(20, 20, 25) })
-ThemeManager:AddLabel('Accent color'):AddColorPicker('AccentColor', { Default = Color3.fromRGB(0, 170, 255) })
-
--- حفظ الإعدادات تلقائيًا
-SaveManager:SetLibrary(Library)
-SaveManager:IgnoreThemeSettings()
-SaveManager:SetIgnoreIndexes({ 'MenuKeybind' })
-SaveManager:SetFolder('VortexHub/configs')
-SaveManager:BuildConfigSection(MiscTab)
-ThemeManager:SetLibrary(Library)
-ThemeManager:SetFolder('VortexHub')
-ThemeManager:ApplyToTab(MiscTab)
-
-Library:OnUnload(function()
-    Library:Notify('Vortex Hub Unloaded!', 3)
 end)
 
-print('✅ Vortex Hub V2.0 Loaded Successfully!')
-print('👤 Team: '..(getgenv().Team or "Marines"))
-print('🎯 Made by aq05390533-art')
+Tabs.Farm:AddToggle("AutoFarmNearest", {
+    Title = "Auto Farm Nearest",
+    Description = "Farm mobs near you",
+    Default = false
+})
+
+Tabs.Farm:AddSection("Farm Level")
+
+Tabs.Farm:AddToggle("SkyPheaFarm", {
+    Title = "Sky Phea Farm",
+    Default = false
+})
+
+Tabs.Farm:AddToggle("PlayerHunter", {
+    Title = "Player Hunter Quest",
+    Default = false
+})
+
+Tabs.Farm:AddSection("Chests")
+
+Tabs.Farm:AddToggle("AutoChest", {
+    Title = "Auto Chest (Tween)",
+    Default = false,
+    Callback = function(Value)
+        getgenv().AutoChest = Value
+    end
+})
+
+-- =============================================
+-- تبويب Stats
+-- =============================================
+
+Tabs.Stats:AddSection("Stats Settings")
+
+Tabs.Stats:AddSlider("StatsPoints", {
+    Title = "Point Allocation %",
+    Description = "Choose percentage to add",
+    Default = 50,
+    Min = 0,
+    Max = 100,
+    Rounding = 0,
+})
+
+Tabs.Stats:AddToggle("AutoMelee", { Title = "Auto Melee", Default = false })
+Tabs.Stats:AddToggle("AutoDefense", { Title = "Auto Defense", Default = false })
+Tabs.Stats:AddToggle("AutoSword", { Title = "Auto Sword", Default = false })
+Tabs.Stats:AddToggle("AutoFruit", { Title = "Auto Fruit", Default = false })
+
+-- =============================================
+-- تبويب Teleport
+-- =============================================
+
+Tabs.Teleport:AddDropdown("IslandSelect", {
+    Title = "Select Island",
+    Values = {"Jungle", "Pirate Village", "Marine Fortress", "Skylands", "Prison", "Colosseum", "Magma Village"},
+    Multi = false,
+    Default = 1,
+})
+
+Tabs.Teleport:AddButton({
+    Title = "Teleport",
+    Description = "Teleport to selected island",
+    Callback = function()
+        Fluent:Notify({Title = "Vortex Hub", Content = "Teleporting...", Duration = 3})
+    end
+})
+
+-- =============================================
+-- تبويب Misc (FPS Boost وغيره)
+-- =============================================
+
+Tabs.Misc:AddButton({
+    Title = "FPS Boost",
+    Description = "Remove lag",
+    Callback = function()
+        for i,v in pairs(game:GetDescendants()) do
+            if v:IsA("Part") then v.Material = "Plastic" end
+        end
+        Fluent:Notify({Title = "System", Content = "FPS Boost Applied!", Duration = 3})
+    end
+})
+
+Tabs.Misc:AddButton({
+    Title = "Rejoin Server",
+    Callback = function()
+        game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
+    end
+})
+
+-- حفظ الإعدادات
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetIgnoreIndexes({})
+InterfaceManager:BuildInterfaceSection(Tabs.Misc)
+SaveManager:BuildConfigSection(Tabs.Misc)
+
+Window:SelectTab(1)
+
+Fluent:Notify({
+    Title = "Vortex Hub",
+    Content = "Loaded Successfully! Team: " .. (getgenv().Team or "Marines"),
+    Duration = 8
+})
+
+print("✅ Vortex Hub Loaded | UI Style: Fluent")

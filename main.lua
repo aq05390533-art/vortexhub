@@ -1,6 +1,7 @@
 --[[
-VORTEX HUB V3 - CORRECT HAUNTED CASTLE COORDINATES
-Your Position: -9514.46, 172.33, 6076.32
+VORTEX HUB V3 - FIXED QUEST NAMES
+Problem: Taking wrong quest (Skeleton instead of Living Zombie)
+Solution: Correct quest names and numbers
 ]]--
 
 -- =============================================
@@ -123,7 +124,7 @@ function DisableNoClip()
 end
 
 -- =============================================
--- ✅ QUEST DATA - YOUR COORDINATES ADDED
+-- ✅ QUEST DATA - FIXED QUEST NAMES
 -- =============================================
 local QuestList = {
     -- ========== FIRST SEA ==========
@@ -321,13 +322,13 @@ local QuestList = {
      QuestPos = CFrame.new(5497.54, 51.47, -804.37),
      MobPos = CFrame.new(5145.51, 51.61, -1655.34)},
      
-    -- ========== HAUNTED CASTLE - YOUR COORDINATES ========== 
+    -- ========== HAUNTED CASTLE - FIXED ========== 
     {Lvl = {2025, 2049}, Quest = "HauntedQuest1", QuestLvl = 1, Enemy = "Living Zombie", 
-     QuestPos = CFrame.new(-9514.46, 172.33, 6076.33),  -- ✅ YOUR EXACT POSITION
+     QuestPos = CFrame.new(-9514.46, 172.33, 6076.33),
      MobPos = CFrame.new(-10144.07, 138.65, 5975.96)},
      
     {Lvl = {2050, 2074}, Quest = "HauntedQuest1", QuestLvl = 2, Enemy = "Demonic Soul", 
-     QuestPos = CFrame.new(-9514.46, 172.33, 6076.33),  -- ✅ SAME QUEST GIVER
+     QuestPos = CFrame.new(-9514.46, 172.33, 6076.33),
      MobPos = CFrame.new(-9712.03, 172.13, 6144.49)},
      
     {Lvl = {2075, 2099}, Quest = "HauntedQuest2", QuestLvl = 1, Enemy = "Posessed Mummy", 
@@ -397,9 +398,10 @@ function GetQuestData()
         if Level >= quest.Lvl[1] and Level <= quest.Lvl[2] then
             print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
             print("🎯 YOUR LEVEL: " .. Level)
-            print("📜 QUEST: " .. quest.Enemy)
+            print("📜 QUEST NAME: " .. quest.Quest)
+            print("📊 QUEST LEVEL: " .. quest.QuestLvl)
+            print("👹 ENEMY: " .. quest.Enemy)
             print("📍 RANGE: " .. quest.Lvl[1] .. "-" .. quest.Lvl[2])
-            print("✅ Quest Pos: " .. tostring(quest.QuestPos))
             print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
             return quest
         end
@@ -455,8 +457,6 @@ end
 
 function TweenToPosition(pos, description)
     if not RootPart then return end
-
-    print("📍 " .. (description or "Traveling") .. "...")
 
     if getgenv().Config.InstantTP then
         InstantTP(pos)
@@ -516,7 +516,7 @@ function CheckQuest(enemyName)
 end
 
 -- =============================================
--- IMPROVED QUEST SYSTEM
+-- ✅ IMPROVED QUEST SYSTEM WITH DEBUG
 -- =============================================
 function TakeQuest(questData)
     if not getgenv().Config.UseQuest then return true end
@@ -526,7 +526,8 @@ function TakeQuest(questData)
         return true
     end
 
-    print("📜 Taking Quest: " .. questData.Enemy)
+    print("📜 Taking Quest: " .. questData.Quest .. " Level " .. questData.QuestLvl)
+    print("👹 Enemy: " .. questData.Enemy)
     
     TweenToPosition(questData.QuestPos, "Going to Quest Giver")
     task.wait(2)
@@ -536,6 +537,10 @@ function TakeQuest(questData)
             RootPart.CFrame = questData.QuestPos * CFrame.new(0, 0, 3)
             task.wait(0.7)
         end
+        
+        print("🔄 Attempting to take quest... (" .. attempt .. "/3)")
+        print("📝 Quest Name: " .. questData.Quest)
+        print("🔢 Quest Level: " .. questData.QuestLvl)
         
         local success, err = pcall(function()
             ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", questData.Quest, questData.QuestLvl)
@@ -548,14 +553,14 @@ function TakeQuest(questData)
         task.wait(2)
         
         if CheckQuest(questData.Enemy) then
-            print("✅ Quest Accepted! (Attempt " .. attempt .. "/3)")
+            print("✅ Quest Accepted!")
             return true
         else
-            print("⚠️ Retry " .. attempt .. "/3...")
+            print("❌ Quest failed, retrying...")
         end
     end
     
-    print("❌ Farming without quest...")
+    print("⚠️ Farming without quest...")
     return false
 end
 
@@ -768,8 +773,9 @@ Window:SelectTab(1)
 
 Fluent:Notify({
     Title = "Vortex Hub V3",
-    Content = "✅ Your Coordinates Loaded! Level: " .. Player.Data.Level.Value,
+    Content = "✅ Debug Mode Enabled! Check Console (F9)",
     Duration = 5
 })
 
-print("✅ Vortex Hub V3 | Your Exact Position Used | Level: " .. Player.Data.Level.Value)
+print("✅ Vortex Hub V3 | Debug Mode | Level: " .. Player.Data.Level.Value)
+print("📝 Press F9 to see quest debug info")

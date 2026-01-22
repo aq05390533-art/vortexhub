@@ -1,6 +1,6 @@
 --[[
     VORTEX HUB V3 - ANTI-KICK SYSTEM
-    Advanced Quest & Mob System
+    Fixed Quest → Mob Flow
 ]]--
 
 -- =============================================
@@ -37,7 +37,7 @@ local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/
 
 local Window = Fluent:CreateWindow({
     Title = "Vortex Hub V3 | Anti-Kick",
-    SubTitle = "Advanced Quest System",
+    SubTitle = "Fixed Quest System",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true,
@@ -311,7 +311,7 @@ function SafeTween(targetPos, description)
         end
     end
     
-    -- تعطيل Humanoid States عشان ما يتأثر بالجاذبية
+    -- تعطيل Humanoid States
     Humanoid:ChangeState(Enum.HumanoidStateType.Flying)
     
     local tweenInfo = TweenInfo.new(
@@ -327,7 +327,7 @@ function SafeTween(targetPos, description)
     
     print("🛫 " .. (description or "Traveling") .. " | Distance: " .. math.floor(Distance) .. " studs")
     
-    -- NoClip قوي جداً أثناء الحركة
+    -- NoClip قوي أثناء الحركة
     local noClipLoop = RunService.Heartbeat:Connect(function()
         pcall(function()
             for _, part in pairs(Character:GetDescendants()) do
@@ -353,7 +353,7 @@ function SafeTween(targetPos, description)
     
     wait(0.2)
     
-    -- إرجاع Collision للحالة الأصلية
+    -- إرجاع Collision
     for part, canCollide in pairs(originalCollision) do
         if part and part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
             part.CanCollide = canCollide
@@ -483,10 +483,11 @@ function BringMob(mob)
 end
 
 -- =============================================
--- ADVANCED FARM LOOP (QUEST → MOB FLOW)
+-- FIXED FARM LOOP (3 STAGES)
 -- =============================================
 local FarmLoop
-local lastQuestCheck = 0
+local questTaken = false
+local wentToMobs = false
 
 function StartFarm()
     if FarmLoop then return end
@@ -499,74 +500,79 @@ function StartFarm()
         
         pcall(function()
             local Quest = GetQuestData()
-            local currentTime = tick()
             
-            -- خطوة 1: فحص الكويست كل 5 ثواني فقط
+            -- ========== STAGE 1: TAKE QUEST ==========
             if not CheckQuest(Quest.Enemy) then
-                if currentTime - lastQuestCheck > 5 then
-                    StopFastAttack()
-                    print("📜 No active quest, taking: " .. Quest.Enemy)
-                    
-                    -- أخذ الكويست
-                    local questTaken = TakeQuest(Quest)
-                    lastQuestCheck = currentTime
-                    
-                    -- الانتظار والذهاب للموبات
-                    if questTaken then
-                        wait(2)
-                        
-                        if CheckQuest(Quest.Enemy) then
-                            print("✅ Quest active! Going to mobs...")
-                            TweenToPosition(Quest.MobPos, "Traveling to " .. Quest.Enemy)
-                            wait(3)
+                questTaken = false
+                wentToMobs = false
+                StopFastAttack()
+                
+                print("📜 Stage 1: Taking quest for " .. Quest.Enemy)
+                
+                -- أخذ الكويست
+                TakeQuest(Quest)
+                wait(3)
+                
+                -- التأكد إن الكويست اتاخد
+                if CheckQuest(Quest.Enemy) then
+                    questTaken = true
+                    print("✅ Quest confirmed!")
+                end
+                
+            -- ========== STAGE 2: GO TO MOBS ==========
+            elseif CheckQuest(Quest.Enemy) and not wentToMobs then
+                StopFastAttack()
+                print("🚀 Stage 2: Quest active! Going to mob spawn...")
+                
+                TweenToPosition(Quest.MobPos, "Traveling to " .. Quest.Enemy)
+                wait(3)
+                
+                wentToMobs = true
+                print("📍 Arrived at mob location!")
+                
+            -- ========== STAGE 3: FARM ==========
+            elseif CheckQuest(Quest.Enemy) and wentToMobs then
+                
+                -- البحث عن أقرب موب
+                local Enemy = nil
+                local nearestDistance = math.huge
+                
+                for _, mob in pairs(game.Workspace.Enemies:GetChildren()) do
+                    if mob.Name == Quest.Enemy and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and mob:FindFirstChild("HumanoidRootPart") then
+                        local distance = (mob.HumanoidRootPart.Position - RootPart.Position).Magnitude
+                        if distance < nearestDistance then
+                            nearestDistance = distance
+                            Enemy = mob
                         end
                     end
                 end
-                return
-            end
-            
-            -- خطوة 2: البحث عن العدو في المنطقة
-            local Enemy = nil
-            local nearestDistance = math.huge
-            
-            for _, mob in pairs(game.Workspace.Enemies:GetChildren()) do
-                if mob.Name == Quest.Enemy and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and mob:FindFirstChild("HumanoidRootPart") then
-                    local distance = (mob.HumanoidRootPart.Position - RootPart.Position).Magnitude
-                    if distance < nearestDistance then
-                        nearestDistance = distance
-                        Enemy = mob
+                
+                -- القتال
+                if Enemy and Enemy:FindFirstChild("HumanoidRootPart") then
+                    EnableHaki()
+                    EquipWeapon(getgenv().Config.SelectedWeapon)
+                    StartFastAttack()
+                    
+                    if RootPart and Enemy.Humanoid.Health > 0 then
+                        local targetPos = Enemy.HumanoidRootPart.CFrame * CFrame.new(0, getgenv().Config.DistanceFromMob, 0)
+                        RootPart.CFrame = targetPos
+                        Humanoid.AutoRotate = false
+                        RootPart.CFrame = CFrame.new(RootPart.Position, Enemy.HumanoidRootPart.Position)
                     end
-                end
-            end
-            
-            -- خطوة 3: المعركة
-            if Enemy and Enemy:FindFirstChild("HumanoidRootPart") then
-                EnableHaki()
-                EquipWeapon(getgenv().Config.SelectedWeapon)
-                StartFastAttack()
-                
-                -- الحركة للعدو
-                if RootPart and Enemy.Humanoid.Health > 0 then
-                    local targetPos = Enemy.HumanoidRootPart.CFrame * CFrame.new(0, getgenv().Config.DistanceFromMob, 0)
-                    RootPart.CFrame = targetPos
-                    Humanoid.AutoRotate = false
-                    RootPart.CFrame = CFrame.new(RootPart.Position, Enemy.HumanoidRootPart.Position)
-                end
-                
-                BringMob(Enemy)
-                
-            else
-                -- خطوة 4: لو ما لقى موبات، يروح لمكان السبون
-                StopFastAttack()
-                
-                if Quest.MobPos and (RootPart.Position - Quest.MobPos.Position).Magnitude > 50 then
-                    print("🔍 Searching for " .. Quest.Enemy .. "...")
-                    TweenToPosition(Quest.MobPos, "Going to Mob Spawn")
-                    wait(4)
+                    
+                    BringMob(Enemy)
                 else
-                    -- لو في المكان وما لقى موبات، ينتظر شوي
-                    print("⏳ Waiting for mobs to spawn...")
-                    wait(2)
+                    -- لو ما لقى موبات
+                    StopFastAttack()
+                    
+                    if (RootPart.Position - Quest.MobPos.Position).Magnitude > 100 then
+                        print("🔍 Lost position, returning to spawn...")
+                        TweenToPosition(Quest.MobPos, "Returning to spawn")
+                        wait(3)
+                    else
+                        print("⏳ Waiting for mobs to respawn...")
+                        wait(2)
+                    end
                 end
             end
         end)
@@ -578,6 +584,8 @@ function StopFarm()
         FarmLoop:Disconnect()
         FarmLoop = nil
     end
+    questTaken = false
+    wentToMobs = false
     StopFastAttack()
     DisableNoClip()
     if Humanoid then 
@@ -708,8 +716,9 @@ Window:SelectTab(1)
 
 Fluent:Notify({
     Title = "Vortex Hub V3",
-    Content = "Advanced Quest System Loaded! Level: " .. Player.Data.Level.Value,
+    Content = "3-Stage Quest System Loaded! Level: " .. Player.Data.Level.Value,
     Duration = 5
 })
 
-print("✅ Vortex Hub V3 | Advanced Quest System | Level: " .. Player.Data.Level.Value)
+print("✅ Vortex Hub V3 | 3-Stage System | Level: " .. Player.Data.Level.Value)
+print("📋 Stage 1: Take Quest → Stage 2: Travel to Mobs → Stage 3: Farm")

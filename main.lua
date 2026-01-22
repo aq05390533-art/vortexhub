@@ -1,6 +1,6 @@
 --[[
     VORTEX HUB V3 - ANTI-KICK SYSTEM
-    Bypass Detection: NoClip + Safe Tween
+    Ultra Safe Tween - No Collision Issues
 ]]--
 
 -- =============================================
@@ -37,7 +37,7 @@ local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/
 
 local Window = Fluent:CreateWindow({
     Title = "Vortex Hub V3 | Anti-Kick",
-    SubTitle = "Bypass Anti-Cheat System",
+    SubTitle = "Ultra Safe Tween System",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true,
@@ -294,15 +294,25 @@ local QuestList = {
 }
 
 -- =============================================
--- SAFE TWEEN SYSTEM (NO TELEPORT AT ALL)
+-- ULTRA SAFE TWEEN SYSTEM (يخترق أي شيء)
 -- =============================================
 function SafeTween(targetPos, description)
     if not RootPart or not targetPos then return end
     
-    EnableNoClip()
-    
     local Distance = (targetPos.Position - RootPart.Position).Magnitude
     local Speed = getgenv().Config.TweenSpeed
+    
+    -- حفظ حالة الـ Collision الأصلية
+    local originalCollision = {}
+    for _, part in pairs(Character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            originalCollision[part] = part.CanCollide
+            part.CanCollide = false
+        end
+    end
+    
+    -- تعطيل Humanoid States عشان ما يتأثر بالجاذبية
+    Humanoid:ChangeState(Enum.HumanoidStateType.Flying)
     
     local tweenInfo = TweenInfo.new(
         Distance / Speed,
@@ -317,11 +327,38 @@ function SafeTween(targetPos, description)
     
     print("🛫 " .. (description or "Traveling") .. " | Distance: " .. math.floor(Distance) .. " studs")
     
+    -- NoClip قوي جداً أثناء الحركة
+    local noClipLoop = RunService.Heartbeat:Connect(function()
+        pcall(function()
+            for _, part in pairs(Character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                    part.Velocity = Vector3.new(0, 0, 0)
+                    part.RotVelocity = Vector3.new(0, 0, 0)
+                end
+            end
+        end)
+    end)
+    
     tween:Play()
     tween.Completed:Wait()
     
-    wait(0.3)
-    DisableNoClip()
+    -- إيقاف NoClip
+    if noClipLoop then
+        noClipLoop:Disconnect()
+    end
+    
+    -- إرجاع الحالة الطبيعية
+    Humanoid:ChangeState(Enum.HumanoidStateType.Running)
+    
+    wait(0.2)
+    
+    -- إرجاع Collision للحالة الأصلية
+    for part, canCollide in pairs(originalCollision) do
+        if part and part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+            part.CanCollide = canCollide
+        end
+    end
 end
 
 function TweenToPosition(pos, description)
@@ -511,7 +548,10 @@ function StopFarm()
     end
     StopFastAttack()
     DisableNoClip()
-    if Humanoid then Humanoid.AutoRotate = true end
+    if Humanoid then 
+        Humanoid.AutoRotate = true
+        Humanoid:ChangeState(Enum.HumanoidStateType.Running)
+    end
 end
 
 -- =============================================
@@ -620,12 +660,24 @@ Tabs.Misc:AddButton({
     end
 })
 
+Tabs.Misc:AddButton({
+    Title = "Anti-AFK",
+    Callback = function()
+        local VirtualUser = game:GetService("VirtualUser")
+        game:GetService("Players").LocalPlayer.Idled:Connect(function()
+            VirtualUser:CaptureController()
+            VirtualUser:ClickButton2(Vector2.new())
+        end)
+        Fluent:Notify({Title = "System", Content = "Anti-AFK Activated!", Duration = 3})
+    end
+})
+
 Window:SelectTab(1)
 
 Fluent:Notify({
     Title = "Vortex Hub V3",
-    Content = "Safe Tween System Loaded! Level: " .. Player.Data.Level.Value,
+    Content = "Ultra Safe Tween Loaded! Level: " .. Player.Data.Level.Value,
     Duration = 5
 })
 
-print("✅ Vortex Hub V3 | Safe Tween System | Level: " .. Player.Data.Level.Value)
+print("✅ Vortex Hub V3 | Ultra Safe Tween | No Collision Issues | Level: " .. Player.Data.Level.Value)

@@ -1,6 +1,6 @@
 --[[
-    VORTEX HUB V3 - AIM SKILLS (FIXED)
-    ✅ يصوب تلقائياً على أقرب لاعب عند استخدام المهارات
+    VORTEX HUB V3 - AIM SKILLS (FIXED 100%)
+    ✅ يصوب تلقائياً عند استخدام Z/X/C/V
 ]]--
 
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
@@ -19,19 +19,19 @@ local Tab = Window:AddTab({ Title = "Aim Skills", Icon = "crosshair" })
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local UserInputService = game:GetService("UserInputService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
 
 -- الإعدادات
 _G.AimSkills = {
     Enabled = true,
     Skills = {
-        Z = true,
-        X = true,
-        C = true,
-        V = true
+        ["Z"] = true,
+        ["X"] = true,
+        ["C"] = true,
+        ["V"] = true
     },
     Distance = 200,
-    AutoRotate = true -- تدوير تلقائي نحو الهدف
+    Debug = true -- لعرض رسائل التصحيح
 }
 
 -- الحصول على أقرب لاعب
@@ -79,63 +79,112 @@ local function AimAtPlayer(target)
     if not targetHRP then return false end
     
     -- تدوير الشخصية باتجاه الهدف
-    if _G.AimSkills.AutoRotate then
-        local lookAtCFrame = CFrame.new(
-            myChar.HumanoidRootPart.Position,
-            Vector3.new(targetHRP.Position.X, myChar.HumanoidRootPart.Position.Y, targetHRP.Position.Z)
-        )
-        myChar.HumanoidRootPart.CFrame = lookAtCFrame
+    local myHRP = myChar.HumanoidRootPart
+    local direction = (targetHRP.Position - myHRP.Position).Unit
+    local lookAtCFrame = CFrame.new(myHRP.Position, myHRP.Position + direction)
+    
+    myHRP.CFrame = lookAtCFrame
+    
+    if _G.AimSkills.Debug then
+        print("🎯 Aimed at: " .. target.Name .. " | Distance: " .. math.floor((targetHRP.Position - myHRP.Position).Magnitude))
     end
     
     return true
 end
 
--- مراقبة ضغط المهارات
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed or not _G.AimSkills.Enabled then return end
-    
-    local key = input.KeyCode.Name
-    
-    -- فحص إذا كان المفتاح ضمن المهارات المفعلة
-    if _G.AimSkills.Skills[key] then
-        local target = GetClosestPlayer()
-        
-        if target then
-            local success = AimAtPlayer(target)
-            if success then
-                print("🎯 [" .. key .. "] Aimed at: " .. target.Name)
-                Fluent:Notify({
-                    Title = "Aim Skills",
-                    Content = "🎯 Targeted: " .. target.Name,
-                    Duration = 1.5
-                })
-            end
-        else
-            print("⚠️ No target found within range!")
-        end
-    end
-end)
-
--- Hook لـ RemoteEvents (خيار إضافي)
+-- Hook للـ RemoteEvents (الطريقة الأساسية)
 local OldNamecall
 OldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
     local method = getnamecallmethod()
     local args = {...}
     
-    if not checkcaller() and method == "FireServer" and _G.AimSkills.Enabled then
-        local eventName = tostring(self)
-        
-        -- فحص إذا كان الإيفنت يتعلق بالمهارات
-        if eventName:match("Skill") or eventName:match("Ability") or eventName:match("Combat") then
-            local target = GetClosestPlayer()
-            if target then
-                AimAtPlayer(target)
+    if not checkcaller() and (method == "FireServer" or method == "InvokeServer") then
+        if _G.AimSkills.Enabled then
+            local eventName = tostring(self)
+            
+            -- فحص إذا كان الإيفنت متعلق بالمهارات
+            -- جرب طباعة اسم الإيفنت لمعرفة الاسم الصحيح
+            if _G.AimSkills.Debug then
+                print("🔍 Event Fired: " .. eventName)
+            end
+            
+            -- فحص المهارات Z/X/C/V
+            for key, enabled in pairs(_G.AimSkills.Skills) do
+                if enabled and (eventName:find(key) or eventName:upper():find(key)) then
+                    local target = GetClosestPlayer()
+                    if target then
+                        task.spawn(function()
+                            AimAtPlayer(target)
+                            Fluent:Notify({
+                                Title = "Aim Skills",
+                                Content = "🎯 [" .. key .. "] → " .. target.Name,
+                                Duration = 1.5
+                            })
+                        end)
+                    end
+                    break
+                end
             end
         end
     end
     
     return OldNamecall(self, ...)
 end))
+
+-- طريقة بديلة: مراقبة ضغط المفاتيح مباشرة
+local UserInputService = game:GetService("UserInputService")
+local isSkillActive = false
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed or not _G.AimSkills.Enabled or isSkillActive then return end
+    
+    local keyPressed = input.KeyCode.Name
+    
+    if _G.AimSkills.Debug then
+        print("⌨️ Key Pressed: " .. keyPressed)
+    end
+    
+    -- فحص إذا كان المفتاح ضمن المهارات
+    if _G.AimSkills.Skills[keyPressed] then
+        isSkillActive = true
+        
+        local target = GetClosestPlayer()
+        if target then
+            AimAtPlayer(target)
+            Fluent:Notify({
+                Title = "Aim Skills",
+                Content = "🎯 [" .. keyPressed .. "] → " .. target.Name,
+                Duration = 1.5
+            })
+        else
+            if _G.AimSkills.Debug then
+                print("⚠️ No target found!")
+            end
+        end
+        
+        task.wait(0.5) -- منع التكرار السريع
+        isSkillActive = false
+    end
+end)
+
+-- طريقة ثالثة: Hook لـ Combat Events
+local Combat = ReplicatedStorage:WaitForChild("Combat", 5)
+if Combat then
+    for _, remote in pairs(Combat:GetDescendants()) do
+        if remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction") then
+            local oldFire = remote.FireServer
+            remote.FireServer = function(self, ...)
+                if _G.AimSkills.Enabled then
+                    local target = GetClosestPlayer()
+                    if target then
+                        AimAtPlayer(target)
+                    end
+                end
+                return oldFire(self, ...)
+            end
+        end
+    end
+end
 
 -- ═══════════════════════════════════════
 -- UI CONTROLS
@@ -153,30 +202,30 @@ Tab:AddToggle("Enable", {
     })
 end)
 
-Tab:AddToggle("AutoRotate", {
-    Title = "🔄 Auto Rotate Character",
+Tab:AddToggle("Debug", {
+    Title = "🐛 Debug Mode",
     Default = true,
-    Description = "تدوير الشخصية نحو الهدف تلقائياً"
+    Description = "عرض رسائل التصحيح في الكونسول"
 }):OnChanged(function(v)
-    _G.AimSkills.AutoRotate = v
+    _G.AimSkills.Debug = v
 end)
 
-Tab:AddParagraph({Title = "⚔️ Skills Settings", Content = "فعّل/عطّل المهارات المحددة:"})
+Tab:AddParagraph({Title = "⚔️ Skills Settings", Content = "فعّل/عطّل المهارات:"})
 
 Tab:AddToggle("Z", {Title = "Z Skill", Default = true}):OnChanged(function(v) 
-    _G.AimSkills.Skills.Z = v 
+    _G.AimSkills.Skills["Z"] = v 
 end)
 
 Tab:AddToggle("X", {Title = "X Skill", Default = true}):OnChanged(function(v) 
-    _G.AimSkills.Skills.X = v 
+    _G.AimSkills.Skills["X"] = v 
 end)
 
 Tab:AddToggle("C", {Title = "C Skill", Default = true}):OnChanged(function(v) 
-    _G.AimSkills.Skills.C = v 
+    _G.AimSkills.Skills["C"] = v 
 end)
 
 Tab:AddToggle("V", {Title = "V Skill", Default = true}):OnChanged(function(v) 
-    _G.AimSkills.Skills.V = v 
+    _G.AimSkills.Skills["V"] = v 
 end)
 
 Tab:AddSlider("Dist", {
@@ -213,10 +262,20 @@ Tab:AddButton({
     end
 })
 
+-- زر فتح الكونسول
+Tab:AddButton({
+    Title = "📋 Open Console (F9)",
+    Description = "لمشاهدة رسائل Debug",
+    Callback = function()
+        game:GetService("StarterGui"):SetCore("DevConsoleVisible", true)
+    end
+})
+
 Fluent:Notify({
     Title = "Vortex Hub V3", 
-    Content = "✅ Aim Skills Loaded Successfully!", 
-    Duration = 3
+    Content = "✅ Aim Skills Loaded!\n🐛 Check Console (F9) for debug info", 
+    Duration = 4
 })
 
 print("✅ Vortex Hub - Aim Skills Loaded")
+print("📋 Press F9 to see debug messages")

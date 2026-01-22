@@ -1,6 +1,7 @@
 --[[
-VORTEX HUB V3 - ANTI-KICK SYSTEM
-Fixed Auto Farm Level Selection
+VORTEX HUB V3 - FIXED COORDINATES
+Problem: Wrong Quest Giver location
+Solution: Correct Haunted Castle coordinates
 ]]--
 
 -- =============================================
@@ -123,7 +124,7 @@ function DisableNoClip()
 end
 
 -- =============================================
--- QUEST DATA (مرتبة من الأصغر للأكبر)
+-- ✅ QUEST DATA - FIXED COORDINATES
 -- =============================================
 local QuestList = {
     -- ========== FIRST SEA ==========
@@ -229,13 +230,13 @@ local QuestList = {
      QuestPos = CFrame.new(5251.51, 51.61, -1655.34),
      MobPos = CFrame.new(5145.51, 51.61, -1655.34)},
      
-    -- ========== HAUNTED CASTLE ========== 
+    -- ========== HAUNTED CASTLE - FIXED ========== 
     {Lvl = {2025, 2049}, Quest = "HauntedQuest1", QuestLvl = 1, Enemy = "Living Zombie", 
-     QuestPos = CFrame.new(-9479.43, 141.22, 5566.09),
+     QuestPos = CFrame.new(-9479.2, 142.13, 5566.0),  -- ✅ Fixed
      MobPos = CFrame.new(-10144.07, 138.65, 5975.96)},
      
     {Lvl = {2050, 2074}, Quest = "HauntedQuest1", QuestLvl = 2, Enemy = "Demonic Soul", 
-     QuestPos = CFrame.new(-9515.62, 172.13, 6078.89),
+     QuestPos = CFrame.new(-9479.2, 142.13, 5566.0),  -- ✅ Fixed
      MobPos = CFrame.new(-9712.03, 172.13, 6144.49)},
      
     {Lvl = {2075, 2099}, Quest = "HauntedQuest2", QuestLvl = 1, Enemy = "Posessed Mummy", 
@@ -243,7 +244,7 @@ local QuestList = {
      MobPos = CFrame.new(-9738.99, 172.13, 6079.08)},
      
     {Lvl = {2100, 2124}, Quest = "HauntedQuest2", QuestLvl = 2, Enemy = "Peanut Scout", 
-     QuestPos = CFrame.new(-2104.39, 38.10, -10192.54),
+     QuestPos = CFrame.new(-9546.99, 172.13, 6079.08),
      MobPos = CFrame.new(-2188.78, 38.10, -10289.54)},
      
     {Lvl = {2125, 2149}, Quest = "NutsIslandQuest", QuestLvl = 1, Enemy = "Peanut President", 
@@ -251,7 +252,7 @@ local QuestList = {
      MobPos = CFrame.new(-1850.41, 38.32, -10520.01)},
      
     {Lvl = {2150, 2199}, Quest = "NutsIslandQuest", QuestLvl = 2, Enemy = "Captain Elephant", 
-     QuestPos = CFrame.new(-2188.78, 38.10, -9942.58),
+     QuestPos = CFrame.new(-2150.41, 38.32, -10520.01),
      MobPos = CFrame.new(-2188.78, 38.10, -10042.58)},
      
     {Lvl = {2200, 2224}, Quest = "IceCreamIslandQuest", QuestLvl = 1, Enemy = "Ice Cream Chef", 
@@ -259,7 +260,7 @@ local QuestList = {
      MobPos = CFrame.new(-641.64, 125.95, -11062.80)},
      
     {Lvl = {2225, 2249}, Quest = "IceCreamIslandQuest", QuestLvl = 2, Enemy = "Ice Cream Commander", 
-     QuestPos = CFrame.new(-558.07, 125.95, -10965.98),
+     QuestPos = CFrame.new(-820.66, 65.81, -10965.97),
      MobPos = CFrame.new(-558.07, 125.95, -11062.80)},
      
     {Lvl = {2250, 2274}, Quest = "CakeQuest1", QuestLvl = 1, Enemy = "Cookie Crafter", 
@@ -267,7 +268,7 @@ local QuestList = {
      MobPos = CFrame.new(-2374.47, 37.80, -12142.31)},
      
     {Lvl = {2275, 2299}, Quest = "CakeQuest1", QuestLvl = 2, Enemy = "Cake Guard", 
-     QuestPos = CFrame.new(-1570.91, 37.80, -12224.68),
+     QuestPos = CFrame.new(-2021.77, 37.80, -12027.74),
      MobPos = CFrame.new(-1570.91, 37.80, -12424.68)},
      
     {Lvl = {2300, 2324}, Quest = "CakeQuest2", QuestLvl = 1, Enemy = "Baking Staff", 
@@ -275,7 +276,7 @@ local QuestList = {
      MobPos = CFrame.new(-1927.37, 37.80, -13083.11)},
      
     {Lvl = {2325, 2349}, Quest = "CakeQuest2", QuestLvl = 2, Enemy = "Head Baker", 
-     QuestPos = CFrame.new(-2251.51, 52.25, -12373.53),
+     QuestPos = CFrame.new(-1927.37, 37.80, -12983.11),
      MobPos = CFrame.new(-2251.51, 52.25, -12573.53)},
      
     {Lvl = {2350, 2374}, Quest = "ChocQuest1", QuestLvl = 1, Enemy = "Chocolate Bar Battler", 
@@ -283,42 +284,36 @@ local QuestList = {
      MobPos = CFrame.new(172.23, 29.88, -12305.48)},
      
     {Lvl = {2375, 2399}, Quest = "ChocQuest1", QuestLvl = 2, Enemy = "Sweet Thief", 
-     QuestPos = CFrame.new(150.51, 30.69, -12774.61),
+     QuestPos = CFrame.new(232.66, 24.82, -12243.20),
      MobPos = CFrame.new(150.51, 30.69, -12874.61)},
      
     {Lvl = {2400, 2424}, Quest = "ChocQuest2", QuestLvl = 1, Enemy = "Candy Rebel", 
-     QuestPos = CFrame.new(-12350.91, 332.40, -10507.69),
+     QuestPos = CFrame.new(150.51, 30.69, -12774.61),
      MobPos = CFrame.new(-12350.91, 332.40, -10607.69)},
      
     {Lvl = {2425, 2450}, Quest = "ChocQuest2", QuestLvl = 2, Enemy = "Cocoa Warrior", 
-     QuestPos = CFrame.new(117.91, 73.10, -12319.44),
+     QuestPos = CFrame.new(150.51, 30.69, -12774.61),
      MobPos = CFrame.new(58.91, 73.10, -12379.18)}
 }
 
 -- =============================================
--- ✅ FIX: GET CORRECT QUEST DATA
+-- GET QUEST DATA
 -- =============================================
 function GetQuestData()
     local Level = Player.Data.Level.Value
     
-    -- 🔍 نبحث عن الكويست المناسب (من الأكبر للأصغر عشان نتأكد)
-    local SelectedQuest = QuestList[1] -- Default
-    
     for _, quest in pairs(QuestList) do
         if Level >= quest.Lvl[1] and Level <= quest.Lvl[2] then
-            SelectedQuest = quest
-            break
+            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+            print("🎯 YOUR LEVEL: " .. Level)
+            print("📜 SELECTED QUEST: " .. quest.Enemy)
+            print("📍 LEVEL RANGE: " .. quest.Lvl[1] .. "-" .. quest.Lvl[2])
+            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+            return quest
         end
     end
     
-    -- 📊 Debug Info
-    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    print("🎯 YOUR LEVEL: " .. Level)
-    print("📜 SELECTED QUEST: " .. SelectedQuest.Enemy)
-    print("📍 LEVEL RANGE: " .. SelectedQuest.Lvl[1] .. " - " .. SelectedQuest.Lvl[2])
-    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    
-    return SelectedQuest
+    return QuestList[1]
 end
 
 -- =============================================
@@ -345,8 +340,6 @@ function BypassTeleport(targetPos)
     local Checkpoints = math.floor(Distance / 1000)
     local Direction = (targetPos.Position - RootPart.Position).Unit
 
-    print("🚀 Bypassing TP with " .. Checkpoints .. " checkpoints...")
-
     for i = 1, Checkpoints do
         local CheckpointPos = RootPart.Position + (Direction * 1000)
         RootPart.CFrame = CFrame.new(CheckpointPos)
@@ -370,8 +363,6 @@ end
 
 function TweenToPosition(pos, description)
     if not RootPart then return end
-
-    print("📍 " .. (description or "Traveling") .. "...")
 
     if getgenv().Config.InstantTP then
         InstantTP(pos)
@@ -423,45 +414,60 @@ end
 
 function CheckQuest(enemyName)
     local QuestGui = Player.PlayerGui:FindFirstChild("Main")
-    if QuestGui and QuestGui:FindFirstChild("Quest") then
+    if QuestGui and QuestGui:FindFirstChild("Quest") and QuestGui.Quest.Visible then
         local Title = QuestGui.Quest.Container.QuestTitle.Title.Text
         return string.find(Title, enemyName)
     end
     return false
 end
 
+-- =============================================
+-- ✅ IMPROVED QUEST SYSTEM
+-- =============================================
 function TakeQuest(questData)
-    if not getgenv().Config.UseQuest then return end
+    if not getgenv().Config.UseQuest then return true end
 
     if CheckQuest(questData.Enemy) then 
+        print("✅ Quest already active!")
         return true
     end
 
     print("📜 Taking Quest: " .. questData.Enemy)
-
+    
+    -- ✅ الذهاب للـ Quest Giver
     TweenToPosition(questData.QuestPos, "Going to Quest Giver")
-    task.wait(1)
-
-    RootPart.CFrame = questData.QuestPos * CFrame.new(0, 2, -3)
-    task.wait(0.8)
-
-    ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", questData.Quest, questData.QuestLvl)
-    task.wait(1.5)
-
-    if not CheckQuest(questData.Enemy) then
-        RootPart.CFrame = questData.QuestPos * CFrame.new(0, 0, -2)
-        task.wait(0.5)
-        ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", questData.Quest, questData.QuestLvl)
-        task.wait(1)
+    task.wait(2)
+    
+    -- ✅ محاولة 3 مرات
+    for attempt = 1, 3 do
+        -- الوقوف قدام الـ NPC
+        if RootPart then
+            RootPart.CFrame = questData.QuestPos * CFrame.new(0, 0, 3)
+            task.wait(0.7)
+        end
+        
+        -- إرسال الطلب
+        local success, err = pcall(function()
+            ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", questData.Quest, questData.QuestLvl)
+        end)
+        
+        if not success then
+            print("⚠️ Error: " .. tostring(err))
+        end
+        
+        task.wait(2)
+        
+        -- التحقق
+        if CheckQuest(questData.Enemy) then
+            print("✅ Quest Accepted! (Attempt " .. attempt .. "/3)")
+            return true
+        else
+            print("⚠️ Retry " .. attempt .. "/3...")
+        end
     end
-
-    if CheckQuest(questData.Enemy) then
-        print("✅ Quest Accepted!")
-        return true
-    else
-        print("❌ Quest Failed!")
-        return false
-    end
+    
+    print("❌ Quest Failed! Farming without quest...")
+    return false
 end
 
 function BringMob(mob)
@@ -486,6 +492,8 @@ end
 -- MAIN FARM LOOP
 -- =============================================
 local FarmLoop
+local LastQuestCheck = 0
+
 function StartFarm()
     if FarmLoop then return end
 
@@ -497,15 +505,22 @@ function StartFarm()
         
         pcall(function()
             local Quest = GetQuestData()
+            local CurrentTime = tick()
             
-            if not CheckQuest(Quest.Enemy) then
-                StopFastAttack()
-                print("🎯 Target: " .. Quest.Enemy)
-                TakeQuest(Quest)
-                task.wait(2)
-                return
+            -- التحقق من الكويست كل 10 ثواني
+            if getgenv().Config.UseQuest and (CurrentTime - LastQuestCheck) > 10 then
+                if not CheckQuest(Quest.Enemy) then
+                    StopFastAttack()
+                    print("🎯 Target: " .. Quest.Enemy .. " (Lvl " .. Quest.Lvl[1] .. "-" .. Quest.Lvl[2] .. ")")
+                    TakeQuest(Quest)
+                    LastQuestCheck = CurrentTime
+                    task.wait(3)
+                    return
+                end
+                LastQuestCheck = CurrentTime
             end
             
+            -- البحث عن العدو
             local Enemy = nil
             for _, mob in pairs(game.Workspace.Enemies:GetChildren()) do
                 if mob.Name == Quest.Enemy and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
@@ -514,6 +529,7 @@ function StartFarm()
                 end
             end
             
+            -- القتال
             if Enemy and Enemy:FindFirstChild("HumanoidRootPart") then
                 EnableHaki()
                 EquipWeapon(getgenv().Config.SelectedWeapon)
@@ -529,7 +545,6 @@ function StartFarm()
             else
                 StopFastAttack()
                 if Quest.MobPos then
-                    print("🔍 Searching for mobs...")
                     TweenToPosition(Quest.MobPos, "Going to Mob Spawn")
                     task.wait(3)
                 end
@@ -661,6 +676,19 @@ Tabs.Misc:AddButton({
     Callback = function()
         game:GetService("Lighting").FogEnd = 100000
         Fluent:Notify({Title = "System", Content = "Fog Removed!", Duration = 3})
+    end
+})
+
+-- ✅ Debug Button
+Tabs.Misc:AddButton({
+    Title = "🔍 Print Current Position",
+    Callback = function()
+        if RootPart then
+            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+            print("📍 YOUR POSITION:")
+            print(RootPart.CFrame)
+            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        end
     end
 })
 

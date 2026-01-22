@@ -1,56 +1,138 @@
-local Mercury = loadstring(game:HttpGet("https://raw.githubusercontent.com/deeeity/mercury-lib/master/src.lua"))()
+--[[
+    VORTEX HUB - Modern UI 2025
+    Powered by Rayfield Interface
+]]--
 
-local GUI = Mercury:Create{
-    Name = "Vortex Hub",
-    Size = UDim2.fromOffset(600, 400),
-    Theme = Mercury.Themes.Dark,
-    Link = "https://github.com/aq05390533-art/vortexhub"
-}
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-local Tab = GUI:Tab{
-	Name = "Main",
-	Icon = "rbxassetid://8569322835"
-}
+local Window = Rayfield:CreateWindow({
+   Name = "🔥 Vortex Hub",
+   LoadingTitle = "Vortex Hub V2",
+   LoadingSubtitle = "by aq05390533-art",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil,
+      FileName = "VortexHub"
+   },
+   Discord = {
+      Enabled = false,
+      Invite = "noinvitelink",
+      RememberJoins = true
+   },
+   KeySystem = false,
+})
 
-Tab:Toggle{
-	Name = "Auto Farm Level",
-	StartingState = false,
-	Description = nil,
-	Callback = function(state)
-        getgenv().AutoFarm = state
-	end
-}
+Rayfield:Notify({
+   Title = "Vortex Hub Loaded",
+   Content = "Welcome! Team: "..(getgenv().Team or "Marines"),
+   Duration = 6.5,
+   Image = 4483362458,
+})
 
-Tab:Toggle{
-	Name = "Auto Farm Mastery",
-	StartingState = false,
-	Description = nil,
-	Callback = function(state)
-        getgenv().AutoMastery = state
-	end
-}
+-- تبويب Main
+local MainTab = Window:CreateTab("🏠 Main", 4483362458)
+local Section = MainTab:CreateSection("Auto Farm")
 
-Tab:Button{
-	Name = "FPS Boost",
-	Description = nil,
-	Callback = function()
-        for i,v in pairs(game:GetDescendants()) do
-            if v:IsA("Part") then v.Material = "Plastic" end
-        end
-	end
-}
+local AutoFarmToggle = MainTab:CreateToggle({
+   Name = "🚀 Auto Farm Level",
+   CurrentValue = false,
+   Flag = "AutoFarm",
+   Callback = function(Value)
+      getgenv().AutoFarm = Value
+      if Value then
+         Rayfield:Notify({Title = "Auto Farm", Content = "Started!", Duration = 3})
+         -- هنا كود الأوتو فارم
+      else
+         Rayfield:Notify({Title = "Auto Farm", Content = "Stopped!", Duration = 3})
+      end
+   end,
+})
 
-Tab:Button{
-	Name = "Server Hop",
-	Description = nil,
-	Callback = function()
-        -- Server hop code
-	end
-}
+local AutoMasteryToggle = MainTab:CreateToggle({
+   Name = "⚔️ Auto Farm Mastery",
+   CurrentValue = false,
+   Flag = "AutoMastery",
+   Callback = function(Value)
+      getgenv().AutoMastery = Value
+   end,
+})
 
-GUI:Notification{
-	Title = "Vortex Hub",
-	Text = "Loaded Successfully!",
-	Duration = 5,
-	Callback = function() end
-}
+-- تبويب Stats
+local StatsTab = Window:CreateTab("⚡ Stats", 4483362458)
+local StatsSection = StatsTab:CreateSection("Auto Stats")
+
+local MeleeSlider = StatsTab:CreateSlider({
+   Name = "Melee Points",
+   Range = {0, 100},
+   Increment = 1,
+   Suffix = "%",
+   CurrentValue = 33,
+   Flag = "MeleeSlider",
+   Callback = function(Value)
+      getgenv().MeleePercent = Value
+   end,
+})
+
+local DefenseSlider = StatsTab:CreateSlider({
+   Name = "Defense Points",
+   Range = {0, 100},
+   Increment = 1,
+   Suffix = "%",
+   CurrentValue = 33,
+   Flag = "DefenseSlider",
+   Callback = function(Value)
+      getgenv().DefensePercent = Value
+   end,
+})
+
+local SwordSlider = StatsTab:CreateSlider({
+   Name = "Sword Points",
+   Range = {0, 100},
+   Increment = 1,
+   Suffix = "%",
+   CurrentValue = 34,
+   Flag = "SwordSlider",
+   Callback = function(Value)
+      getgenv().SwordPercent = Value
+   end,
+})
+
+local AutoStatsToggle = StatsTab:CreateToggle({
+   Name = "🎯 Auto Stats",
+   CurrentValue = false,
+   Flag = "AutoStats",
+   Callback = function(Value)
+      getgenv().AutoStats = Value
+   end,
+})
+
+-- تبويب Misc
+local MiscTab = Window:CreateTab("🔧 Misc", 4483362458)
+
+local FPSBoostButton = MiscTab:CreateButton({
+   Name = "💨 FPS Boost",
+   Callback = function()
+      for i,v in pairs(game:GetDescendants()) do
+         if v:IsA("Part") or v:IsA("MeshPart") then
+            v.Material = "Plastic"
+            v.Reflectance = 0
+         end
+      end
+      Rayfield:Notify({Title = "FPS Boost", Content = "Applied Successfully!", Duration = 3})
+   end,
+})
+
+local ServerHopButton = MiscTab:CreateButton({
+   Name = "🌐 Server Hop",
+   Callback = function()
+      Rayfield:Notify({Title = "Server Hop", Content = "Searching...", Duration = 2})
+      -- كود السيرفر هوب
+   end,
+})
+
+local RejoinButton = MiscTab:CreateButton({
+   Name = "🔄 Rejoin Server",
+   Callback = function()
+      game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
+   end,
+})

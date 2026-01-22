@@ -1,7 +1,6 @@
 --[[
-    VORTEX HUB V3 - PVP ONLY EDITION
-    Aimbot + Auto Skills + Kill Aura + Godmode + Fly + Speed
-    تم حذف كل شيء يتعلق بالفل والكويستات والفارم
+    VORTEX HUB V3 - PVP ONLY EDITION (FIXED)
+    Fixed: Speed + Haki Issues
 ]]--
 
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
@@ -18,19 +17,22 @@ local Window = Fluent:CreateWindow({
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
 local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
 
 local Tabs = {
     Combat = Window:AddTab({ Title = "Combat", Icon = "crosshair" }),
+    Skills = Window:AddTab({ Title = "Skills", Icon = "zap" }),
     Visual = Window:AddTab({ Title = "Visual", Icon = "eye" }),
-    Movement = Window:AddTab({ Title = "Movement", Icon = "zap" }),
+    Movement = Window:AddTab({ Title = "Movement", Icon = "move" }),
     Misc = Window:AddTab({ Title = "Misc", Icon = "settings" })
 }
 
 -- ==================== SETTINGS ====================
 getgenv().PVP = {
+    -- Aimbot
     Aimbot = true,
     SilentAim = true,
     FOV = 120,
@@ -38,28 +40,39 @@ getgenv().PVP = {
     TeamCheck = false,
     WallCheck = true,
     
+    -- Kill Aura
     KillAura = true,
     KillAuraRange = 25,
     
-    AutoSkills = true,
-    Z_Key = true,
-    X_Key = true,
-    C_Key = true,
-    V_Key = true,
+    -- Aim Skills
+    AimSkills = true,
+    AimZ = true,
+    AimX = true,
+    AimC = true,
+    AimV = true,
+    SkillDistance = 100,
     
-    GodMode = true,
+    -- Auto Skills
+    AutoSkills = false,
+    AutoZ = false,
+    AutoX = false,
+    AutoC = false,
+    AutoV = false,
+    SkillDelay = 1,
+    
+    -- Others
+    GodMode = false,
     AutoHaki = true,
     
+    -- Movement
     Fly = false,
     FlySpeed = 150,
-    
     Speed = false,
     SpeedValue = 200,
-    
     NoClip = false,
 }
 
--- ==================== AIMBOT ====================
+-- ==================== GET CLOSEST PLAYER ====================
 local function GetClosestPlayer()
     local Closest = nil
     local Distance = math.huge
@@ -69,19 +82,18 @@ local function GetClosestPlayer()
             if getgenv().PVP.TeamCheck and v.Team == LocalPlayer.Team then continue end
             
             local Root = v.Character.HumanoidRootPart
-            local ScreenPos, OnScreen = Camera:WorldToViewportPoint(Root.Position)
-            local MouseDistance = (Vector2.new(Mouse.X, Mouse.Y) - Vector2.new(ScreenPos.X, ScreenPos.Y)).Magnitude
+            local Magnitude = (Root.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
             
-            if OnScreen and MouseDistance < Distance and MouseDistance <= getgenv().PVP.FOV then
+            if Magnitude < Distance then
                 if getgenv().PVP.WallCheck then
                     local Ray = Ray.new(Camera.CFrame.Position, (Root.Position - Camera.CFrame.Position).Unit * 500)
                     local Hit = workspace:FindPartOnRayWithIgnoreList(Ray, {LocalPlayer.Character})
                     if Hit and Hit:IsDescendantOf(v.Character) then
-                        Distance = MouseDistance
+                        Distance = Magnitude
                         Closest = v
                     end
                 else
-                    Distance = MouseDistance
+                    Distance = Magnitude
                     Closest = v
                 end
             end
@@ -90,7 +102,7 @@ local function GetClosestPlayer()
     return Closest
 end
 
--- Silent Aim Hook
+-- ==================== AIMBOT ====================
 local oldNamecall
 oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
     local method = getnamecallmethod()
@@ -116,6 +128,101 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
+-- ==================== AIM SKILLS ====================
+local function AimAtTarget(Target)
+    if Target and Target.Character and Target.Character:FindFirstChild("HumanoidRootPart") then
+        local TargetPos = Target.Character.HumanoidRootPart.Position
+        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(LocalPlayer.Character.HumanoidRootPart.Position, TargetPos)
+    end
+end
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    
+    if getgenv().PVP.AimSkills then
+        local Target = GetClosestPlayer()
+        if not Target then return end
+        
+        local Distance = (Target.Character.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+        
+        if Distance <= getgenv().PVP.SkillDistance then
+            if input.KeyCode == Enum.KeyCode.Z and getgenv().PVP.AimZ then
+                AimAtTarget(Target)
+                task.wait(0.05)
+                VirtualInputManager:SendKeyEvent(true, "Z", false, game)
+                task.wait(0.1)
+                VirtualInputManager:SendKeyEvent(false, "Z", false, game)
+                
+            elseif input.KeyCode == Enum.KeyCode.X and getgenv().PVP.AimX then
+                AimAtTarget(Target)
+                task.wait(0.05)
+                VirtualInputManager:SendKeyEvent(true, "X", false, game)
+                task.wait(0.1)
+                VirtualInputManager:SendKeyEvent(false, "X", false, game)
+                
+            elseif input.KeyCode == Enum.KeyCode.C and getgenv().PVP.AimC then
+                AimAtTarget(Target)
+                task.wait(0.05)
+                VirtualInputManager:SendKeyEvent(true, "C", false, game)
+                task.wait(0.1)
+                VirtualInputManager:SendKeyEvent(false, "C", false, game)
+                
+            elseif input.KeyCode == Enum.KeyCode.V and getgenv().PVP.AimV then
+                AimAtTarget(Target)
+                task.wait(0.05)
+                VirtualInputManager:SendKeyEvent(true, "V", false, game)
+                task.wait(0.1)
+                VirtualInputManager:SendKeyEvent(false, "V", false, game)
+            end
+        end
+    end
+end)
+
+-- ==================== AUTO SKILLS ====================
+spawn(function()
+    while task.wait(getgenv().PVP.SkillDelay) do
+        if getgenv().PVP.AutoSkills then
+            local Target = GetClosestPlayer()
+            if Target then
+                local Distance = (Target.Character.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+                
+                if Distance <= getgenv().PVP.SkillDistance then
+                    pcall(function()
+                        AimAtTarget(Target)
+                        
+                        if getgenv().PVP.AutoZ then
+                            VirtualInputManager:SendKeyEvent(true, "Z", false, game)
+                            task.wait(0.1)
+                            VirtualInputManager:SendKeyEvent(false, "Z", false, game)
+                            task.wait(0.5)
+                        end
+                        
+                        if getgenv().PVP.AutoX then
+                            VirtualInputManager:SendKeyEvent(true, "X", false, game)
+                            task.wait(0.1)
+                            VirtualInputManager:SendKeyEvent(false, "X", false, game)
+                            task.wait(0.5)
+                        end
+                        
+                        if getgenv().PVP.AutoC then
+                            VirtualInputManager:SendKeyEvent(true, "C", false, game)
+                            task.wait(0.1)
+                            VirtualInputManager:SendKeyEvent(false, "C", false, game)
+                            task.wait(0.5)
+                        end
+                        
+                        if getgenv().PVP.AutoV then
+                            VirtualInputManager:SendKeyEvent(true, "V", false, game)
+                            task.wait(0.1)
+                            VirtualInputManager:SendKeyEvent(false, "V", false, game)
+                        end
+                    end)
+                end
+            end
+        end
+    end
+end)
+
 -- ==================== KILL AURA ====================
 spawn(function()
     while task.wait(0.1) do
@@ -135,105 +242,157 @@ spawn(function()
     end
 end)
 
--- ==================== AUTO SKILLS ====================
-UserInputService.InputBegan:Connect(function(input)
-    if getgenv().PVP.AutoSkills then
-        if input.KeyCode == Enum.KeyCode.Z and getgenv().PVP.Z_Key then
-            game:GetService("VirtualInputManager"):SendKeyEvent(true, "Z", false, game)
-            task.wait(0.1)
-            game:GetService("VirtualInputManager"):SendKeyEvent(false, "Z", false, game)
-        elseif input.KeyCode == Enum.KeyCode.X and getgenv().PVP.X_Key then
-            game:GetService("VirtualInputManager"):SendKeyEvent(true, "X", false, game)
-            task.wait(0.1)
-            game:GetService("VirtualInputManager"):SendKeyEvent(false, "X", false, game)
-        elseif input.KeyCode == Enum.KeyCode.C and getgenv().PVP.C_Key then
-            game:GetService("VirtualInputManager"):SendKeyEvent(true, "C", false, game)
-            task.wait(0.1)
-            game:GetService("VirtualInputManager"):SendKeyEvent(false, "C", false, game)
-        elseif input.KeyCode == Enum.KeyCode.V and getgenv().PVP.V_Key then
-            game:GetService("VirtualInputManager"):SendKeyEvent(true, "V", false, game)
-            task.wait(0.1)
-            game:GetService("VirtualInputManager"):SendKeyEvent(false, "V", false, game)
-        end
-    end
-end)
-
--- ==================== GODMODE + AUTO HAKI ====================
+-- ==================== GODMODE + AUTO HAKI (FIXED) ====================
 spawn(function()
-    while task.wait(1) do
-        if getgenv().PVP.GodMode then
-            pcall(function()
+    while task.wait(5) do -- تغيير من 1 ثانية إلى 5 ثواني
+        pcall(function()
+            if getgenv().PVP.GodMode and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
                 LocalPlayer.Character.Humanoid.Health = LocalPlayer.Character.Humanoid.MaxHealth
-            end)
-        end
-        if getgenv().PVP.AutoHaki then
-            pcall(function()
-                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Buso")
-            end)
-        end
+            end
+            
+            -- إصلاح Auto Haki - يشيكه بدل ما يطلبه كل مرة
+            if getgenv().PVP.AutoHaki and LocalPlayer.Character then
+                if not LocalPlayer.Character:FindFirstChild("HasBuso") then
+                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Buso")
+                end
+            end
+        end)
     end
 end)
 
--- ==================== FLY ====================
+-- ==================== FLY (FIXED) ====================
+local FlyConnection
 spawn(function()
     while task.wait() do
         if getgenv().PVP.Fly then
-            pcall(function()
-                local BodyVelocity = Instance.new("BodyVelocity")
-                BodyVelocity.Velocity = Vector3.new(0, 0, 0)
-                BodyVelocity.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-                BodyVelocity.Parent = LocalPlayer.Character.HumanoidRootPart
-                
-                repeat task.wait()
-                    LocalPlayer.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame + LocalPlayer.Character.Humanoid.MoveDirection * getgenv().PVP.FlySpeed / 50
-                until not getgenv().PVP.Fly or not LocalPlayer.Character
-                
-                BodyVelocity:Destroy()
-            end)
+            if not FlyConnection then
+                FlyConnection = RunService.Heartbeat:Connect(function()
+                    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        local MoveDirection = LocalPlayer.Character.Humanoid.MoveDirection
+                        LocalPlayer.Character.HumanoidRootPart.Velocity = MoveDirection * getgenv().PVP.FlySpeed
+                    end
+                end)
+            end
+        else
+            if FlyConnection then
+                FlyConnection:Disconnect()
+                FlyConnection = nil
+            end
         end
     end
 end)
 
--- ==================== SPEED ====================
-RunService.Stepped:Connect(function()
-    if getgenv().PVP.Speed then
-        pcall(function()
-            LocalPlayer.Character.Humanoid.WalkSpeed = getgenv().PVP.SpeedValue
-        end)
-    else
-        pcall(function()
-            LocalPlayer.Character.Humanoid.WalkSpeed = 16
-        end)
+-- ==================== SPEED (FIXED - بدون تقطيع) ====================
+local OriginalSpeed = 16
+local SpeedConnection
+
+spawn(function()
+    while task.wait() do
+        if getgenv().PVP.Speed then
+            if not SpeedConnection then
+                SpeedConnection = RunService.Heartbeat:Connect(function()
+                    pcall(function()
+                        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+                            LocalPlayer.Character.Humanoid.WalkSpeed = getgenv().PVP.SpeedValue
+                        end
+                    end)
+                end)
+            end
+        else
+            if SpeedConnection then
+                SpeedConnection:Disconnect()
+                SpeedConnection = nil
+                
+                -- إرجاع السرعة الطبيعية
+                pcall(function()
+                    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+                        LocalPlayer.Character.Humanoid.WalkSpeed = OriginalSpeed
+                    end
+                end)
+            end
+        end
     end
 end)
 
 -- ==================== NOCLIP ====================
-RunService.Stepped:Connect(function()
-    if getgenv().PVP.NoClip then
-        for _, v in pairs(LocalPlayer.Character:GetDescendants()) do
-            if v:IsA("BasePart") then
-                v.CanCollide = false
+local NoClipConnection
+spawn(function()
+    while task.wait() do
+        if getgenv().PVP.NoClip then
+            if not NoClipConnection then
+                NoClipConnection = RunService.Stepped:Connect(function()
+                    pcall(function()
+                        for _, v in pairs(LocalPlayer.Character:GetDescendants()) do
+                            if v:IsA("BasePart") then
+                                v.CanCollide = false
+                            end
+                        end
+                    end)
+                end)
+            end
+        else
+            if NoClipConnection then
+                NoClipConnection:Disconnect()
+                NoClipConnection = nil
             end
         end
     end
 end)
 
 -- ==================== UI ====================
+
+-- Combat Tab
 Tabs.Combat:AddToggle("Aimbot", {Title = "Aimbot", Default = true}):OnChanged(function(v) getgenv().PVP.Aimbot = v end)
 Tabs.Combat:AddToggle("SilentAim", {Title = "Silent Aim", Default = true}):OnChanged(function(v) getgenv().PVP.SilentAim = v end)
+Tabs.Combat:AddToggle("TeamCheck", {Title = "Team Check", Default = false}):OnChanged(function(v) getgenv().PVP.TeamCheck = v end)
+Tabs.Combat:AddToggle("WallCheck", {Title = "Wall Check", Default = true}):OnChanged(function(v) getgenv().PVP.WallCheck = v end)
 Tabs.Combat:AddToggle("KillAura", {Title = "Kill Aura", Default = true}):OnChanged(function(v) getgenv().PVP.KillAura = v end)
 Tabs.Combat:AddSlider("KillAuraRange", {Title = "Kill Aura Range", Min = 10, Max = 50, Default = 25}):OnChanged(function(v) getgenv().PVP.KillAuraRange = v end)
-Tabs.Combat:AddToggle("AutoSkills", {Title = "Auto Skills (Z,X,C,V)", Default = true}):OnChanged(function(v) getgenv().PVP.AutoSkills = v end)
-Tabs.Combat:AddToggle("GodMode", {Title = "God Mode", Default = true}):OnChanged(function(v) getgenv().PVP.GodMode = v end)
+Tabs.Combat:AddToggle("GodMode", {Title = "God Mode", Default = false}):OnChanged(function(v) getgenv().PVP.GodMode = v end)
+Tabs.Combat:AddToggle("AutoHaki", {Title = "Auto Haki (Fixed)", Default = true}):OnChanged(function(v) getgenv().PVP.AutoHaki = v end)
 
+-- Skills Tab
+Tabs.Skills:AddParagraph({Title = "Aim Skills", Content = "يصوب تلقائياً على أقرب لاعب عند الضغط"})
+Tabs.Skills:AddToggle("AimSkills", {Title = "Enable Aim Skills", Default = true}):OnChanged(function(v) getgenv().PVP.AimSkills = v end)
+Tabs.Skills:AddToggle("AimZ", {Title = "Aim Skill Z", Default = true}):OnChanged(function(v) getgenv().PVP.AimZ = v end)
+Tabs.Skills:AddToggle("AimX", {Title = "Aim Skill X", Default = true}):OnChanged(function(v) getgenv().PVP.AimX = v end)
+Tabs.Skills:AddToggle("AimC", {Title = "Aim Skill C", Default = true}):OnChanged(function(v) getgenv().PVP.AimC = v end)
+Tabs.Skills:AddToggle("AimV", {Title = "Aim Skill V", Default = true}):OnChanged(function(v) getgenv().PVP.AimV = v end)
+Tabs.Skills:AddSlider("SkillDistance", {Title = "Skill Distance", Min = 50, Max = 200, Default = 100}):OnChanged(function(v) getgenv().PVP.SkillDistance = v end)
+
+Tabs.Skills:AddParagraph({Title = "Auto Skills", Content = "يستخدم السكلات تلقائياً بدون ضغط"})
+Tabs.Skills:AddToggle("AutoSkills", {Title = "Enable Auto Skills", Default = false}):OnChanged(function(v) getgenv().PVP.AutoSkills = v end)
+Tabs.Skills:AddToggle("AutoZ", {Title = "Auto Skill Z", Default = false}):OnChanged(function(v) getgenv().PVP.AutoZ = v end)
+Tabs.Skills:AddToggle("AutoX", {Title = "Auto Skill X", Default = false}):OnChanged(function(v) getgenv().PVP.AutoX = v end)
+Tabs.Skills:AddToggle("AutoC", {Title = "Auto Skill C", Default = false}):OnChanged(function(v) getgenv().PVP.AutoC = v end)
+Tabs.Skills:AddToggle("AutoV", {Title = "Auto Skill V", Default = false}):OnChanged(function(v) getgenv().PVP.AutoV = v end)
+Tabs.Skills:AddSlider("SkillDelay", {Title = "Skill Delay (sec)", Min = 0.5, Max = 5, Default = 1}):OnChanged(function(v) getgenv().PVP.SkillDelay = v end)
+
+-- Visual Tab
 Tabs.Visual:AddToggle("FOVVisible", {Title = "Show FOV Circle", Default = true}):OnChanged(function(v) getgenv().PVP.FOVVisible = v end)
 Tabs.Visual:AddSlider("FOV", {Title = "FOV Size", Min = 50, Max = 300, Default = 120}):OnChanged(function(v) getgenv().PVP.FOV = v end)
 
-Tabs.Movement:AddToggle("Fly", {Title = "Fly (Hold Space)", Default = false}):OnChanged(function(v) getgenv().PVP.Fly = v end)
+-- Movement Tab
+Tabs.Movement:AddToggle("Fly", {Title = "Fly (Fixed)", Default = false}):OnChanged(function(v) getgenv().PVP.Fly = v end)
 Tabs.Movement:AddSlider("FlySpeed", {Title = "Fly Speed", Min = 50, Max = 500, Default = 150}):OnChanged(function(v) getgenv().PVP.FlySpeed = v end)
-Tabs.Movement:AddToggle("Speed", {Title = "Speed Hack", Default = false}):OnChanged(function(v) getgenv().PVP.Speed = v end)
+Tabs.Movement:AddToggle("Speed", {Title = "Speed Hack (Fixed)", Default = false}):OnChanged(function(v) getgenv().PVP.Speed = v end)
 Tabs.Movement:AddSlider("SpeedValue", {Title = "Speed Value", Min = 100, Max = 500, Default = 200}):OnChanged(function(v) getgenv().PVP.SpeedValue = v end)
 Tabs.Movement:AddToggle("NoClip", {Title = "NoClip", Default = false}):OnChanged(function(v) getgenv().PVP.NoClip = v end)
 
-Fluent:Notify({Title = "Vortex Hub V3", Content = "PVP ONLY LOADED - تدمير شامل", Duration = 6})
-print("Vortex Hub V3 - PVP ONLY EDITION LOADED SUCCESSFULLY")
+-- Misc Tab
+Tabs.Misc:AddButton({
+    Title = "Anti-AFK",
+    Callback = function()
+        local VirtualUser = game:GetService("VirtualUser")
+        game:GetService("Players").LocalPlayer.Idled:Connect(function()
+            VirtualUser:CaptureController()
+            VirtualUser:ClickButton2(Vector2.new())
+        end)
+        Fluent:Notify({Title = "System", Content = "Anti-AFK Activated!", Duration = 3})
+    end
+})
+
+Window:SelectTab(1)
+
+Fluent:Notify({Title = "Vortex Hub V3", Content = "PVP LOADED - All Issues Fixed!", Duration = 6})
+print("✅ Vortex Hub V3 - Fixed Speed + Haki")

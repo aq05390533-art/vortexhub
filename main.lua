@@ -1,6 +1,6 @@
 --[[
     VORTEX HUB V3 - AIM SKILLS ONLY
-    Fixed & Simplified
+    Fixed: Skills aim character only (no camera)
 ]]--
 
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
@@ -62,59 +62,74 @@ local function GetClosestEnemy()
     return Closest, ShortestDistance
 end
 
--- ==================== AIM AT TARGET ====================
-local function AimAtEnemy(enemy)
-    if not enemy or not enemy.Character then return end
-    if not enemy.Character:FindFirstChild("HumanoidRootPart") then return end
-    if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then return end
+-- ==================== AIM CHARACTER ONLY (بدون كاميرا) ====================
+local function AimCharacterOnly(enemy)
+    if not enemy or not enemy.Character then return false end
+    if not enemy.Character:FindFirstChild("HumanoidRootPart") then return false end
+    if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then return false end
     
     local TargetPosition = enemy.Character.HumanoidRootPart.Position
     local MyPosition = LocalPlayer.Character.HumanoidRootPart.Position
     
-    -- تصويب الكاميرا
-    Camera.CFrame = CFrame.new(Camera.CFrame.Position, TargetPosition)
-    
-    -- تصويب الشخصية
+    -- تصويب الشخصية فقط (بدون الكاميرا)
     LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(MyPosition, TargetPosition)
     
-    print("🎯 Aimed at: " .. enemy.Name .. " | Distance: " .. math.floor((TargetPosition - MyPosition).Magnitude))
+    local Distance = math.floor((TargetPosition - MyPosition).Magnitude)
+    print("🎯 Character aimed at: " .. enemy.Name .. " | Distance: " .. Distance .. " studs")
+    
+    return true
 end
 
--- ==================== SKILL DETECTION (FIXED) ====================
+-- ==================== AIM WITH CAMERA (للـ Test فقط) ====================
+local function AimWithCamera(enemy)
+    if not enemy or not enemy.Character then return false end
+    if not enemy.Character:FindFirstChild("HumanoidRootPart") then return false end
+    if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then return false end
+    
+    local TargetPosition = enemy.Character.HumanoidRootPart.Position
+    local MyPosition = LocalPlayer.Character.HumanoidRootPart.Position
+    
+    -- تصويب الكاميرا والشخصية
+    Camera.CFrame = CFrame.new(Camera.CFrame.Position, TargetPosition)
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(MyPosition, TargetPosition)
+    
+    local Distance = math.floor((TargetPosition - MyPosition).Magnitude)
+    print("🎯 Camera + Character aimed at: " .. enemy.Name .. " | Distance: " .. Distance .. " studs")
+    
+    return true
+end
+
+-- ==================== SKILL DETECTION (يصوب الشخصية فقط) ====================
 UserInputService.InputBegan:Connect(function(input, isTyping)
-    -- تجاهل إذا كان يكتب في الشات
     if isTyping then return end
-    
-    -- التأكد من تفعيل النظام
     if not getgenv().AimSkills.Enabled then return end
+    if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then return end
     
-    -- التحقق من وجود الشخصية
-    if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then 
-        return 
-    end
-    
-    -- فحص أي زر تم الضغط عليه
     local skillPressed = false
+    local skillName = ""
     
     if input.KeyCode == Enum.KeyCode.Z and getgenv().AimSkills.AimZ then
         skillPressed = true
+        skillName = "Z"
     elseif input.KeyCode == Enum.KeyCode.X and getgenv().AimSkills.AimX then
         skillPressed = true
+        skillName = "X"
     elseif input.KeyCode == Enum.KeyCode.C and getgenv().AimSkills.AimC then
         skillPressed = true
+        skillName = "C"
     elseif input.KeyCode == Enum.KeyCode.V and getgenv().AimSkills.AimV then
         skillPressed = true
+        skillName = "V"
     end
     
-    -- إذا تم الضغط على أحد السكلات
     if skillPressed then
         local enemy, distance = GetClosestEnemy()
         
         if enemy then
-            print("✅ Skill detected! Aiming at closest enemy...")
-            AimAtEnemy(enemy)
+            print("⚡ Skill [" .. skillName .. "] pressed! Aiming character only...")
+            AimCharacterOnly(enemy) -- تصويب الشخصية فقط بدون الكاميرا
         else
-            print("❌ No enemies in range!")
+            print("❌ No enemies in range! (Max: " .. getgenv().AimSkills.MaxDistance .. " studs)")
         end
     end
 end)
@@ -123,7 +138,7 @@ end)
 
 Tabs.Main:AddParagraph({
     Title = "⚡ Aim Skills System",
-    Content = "يصوب تلقائياً على أقرب عدو عند استخدام Z/X/C/V"
+    Content = "يصوب الشخصية تلقائياً (بدون تحريك الكاميرا) عند استخدام Z/X/C/V"
 })
 
 Tabs.Main:AddToggle("EnableAimSkills", {
@@ -192,12 +207,12 @@ Tabs.Main:AddSlider("MaxDistance", {
 end)
 
 Tabs.Main:AddButton({
-    Title = "🔄 Test Aim",
-    Description = "اختبار التصويب على أقرب عدو",
+    Title = "🔄 Test Aim (Camera + Character)",
+    Description = "اختبار التصويب مع تحريك الكاميرا",
     Callback = function()
         local enemy, distance = GetClosestEnemy()
         if enemy then
-            AimAtEnemy(enemy)
+            AimWithCamera(enemy) -- يحرك الكاميرا + الشخصية
             Fluent:Notify({
                 Title = "Test Successful", 
                 Content = "Aimed at " .. enemy.Name .. " (" .. math.floor(distance) .. " studs)", 
@@ -213,17 +228,20 @@ Tabs.Main:AddButton({
     end
 })
 
+Tabs.Main:AddParagraph({
+    Title = "ℹ️ How It Works",
+    Content = "• Test Button: يحرك الكاميرا والشخصية\n• Z/X/C/V: يصوب الشخصية فقط (السكل يروح للعدو بدون تحريك الكاميرا)"
+})
+
 Window:SelectTab(1)
 
 Fluent:Notify({
     Title = "Vortex Hub V3",
-    Content = "Aim Skills Loaded! Press Z/X/C/V to test 🎯",
+    Content = "Aim Skills Loaded! Press Z/X/C/V near enemy 🎯",
     Duration = 5
 })
 
-print("✅ Vortex Hub V3 - Aim Skills Only")
-print("📋 How to use:")
-print("   1. Enable 'Aim Skills' toggle")
-print("   2. Select which skills (Z/X/C/V) to aim")
-print("   3. Press skill button near enemy")
-print("   4. Auto aim will activate!")
+print("✅ Vortex Hub V3 - Aim Skills Only (Character Only Mode)")
+print("📋 Usage:")
+print("   • Test Button = Camera + Character aim")
+print("   • Z/X/C/V = Character aim only (no camera)")

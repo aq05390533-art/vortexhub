@@ -1,6 +1,6 @@
 --[[
-    VORTEX HUB V3 - AIM SKILLS (FIXED - NO INPUT BLOCK)
-    ✅ يصوب تلقائياً بدون تعطيل الأزرار
+    VORTEX HUB V3 - AIM SKILLS (SAFE VERSION)
+    ✅ بدون أي تعقيدات أو مشاكل
 ]]--
 
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
@@ -19,158 +19,130 @@ local Tab = Window:AddTab({ Title = "Aim Skills", Icon = "crosshair" })
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- الإعدادات
+-- إعدادات بسيطة
 _G.AimSkills = {
-    Enabled = true,
-    Skills = {
-        Z = true,
-        X = true,
-        C = true,
-        V = true
-    },
+    Enabled = false,
     Distance = 200
 }
 
--- الحصول على أقرب لاعب
-local function GetClosestPlayer()
-    local closestPlayer = nil
-    local shortestDistance = _G.AimSkills.Distance
+-- إيجاد أقرب لاعب
+local function GetTarget()
+    local target = nil
+    local dist = _G.AimSkills.Distance
     
-    local myChar = LocalPlayer.Character
-    if not myChar or not myChar:FindFirstChild("HumanoidRootPart") then 
-        return nil 
+    if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        return nil
     end
     
-    local myPos = myChar.HumanoidRootPart.Position
-    
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer then
-            local char = player.Character
-            if char then
-                local hrp = char:FindFirstChild("HumanoidRootPart")
-                local hum = char:FindFirstChild("Humanoid")
-                
-                if hrp and hum and hum.Health > 0 then
-                    local distance = (hrp.Position - myPos).Magnitude
-                    
-                    if distance < shortestDistance then
-                        shortestDistance = distance
-                        closestPlayer = player
-                    end
-                end
+    for _, v in pairs(Players:GetPlayers()) do
+        if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
+            local magnitude = (v.Character.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+            if magnitude < dist then
+                dist = magnitude
+                target = v
             end
         end
     end
     
-    return closestPlayer
+    return target
 end
 
--- تصويب نحو اللاعب
-local function AimAtPlayer(target)
-    if not target or not target.Character then return false end
+-- تصويب بسيط
+local function Aim(target)
+    if not target or not target.Character then return end
+    if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then return end
     
-    local myChar = LocalPlayer.Character
-    if not myChar or not myChar:FindFirstChild("HumanoidRootPart") then return false end
+    local myHRP = LocalPlayer.Character.HumanoidRootPart
+    local targetHRP = target.Character.HumanoidRootPart
     
-    local targetHRP = target.Character:FindFirstChild("HumanoidRootPart")
-    if not targetHRP then return false end
-    
-    local myHRP = myChar.HumanoidRootPart
+    -- تدوير بسيط نحو الهدف
     local direction = (targetHRP.Position - myHRP.Position).Unit
-    local lookAtCFrame = CFrame.new(myHRP.Position, myHRP.Position + direction)
+    myHRP.CFrame = CFrame.new(myHRP.Position, myHRP.Position + direction)
     
-    myHRP.CFrame = lookAtCFrame
-    
-    print("🎯 Aimed at: " .. target.Name)
-    return true
+    print("🎯 Aimed: " .. target.Name)
 end
 
--- Hook للـ RemoteEvents فقط (بدون تعطيل Input)
-local OldNamecall
-OldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
+-- Hook آمن
+local mt = getrawmetatable(game)
+local old = mt.__namecall
+setreadonly(mt, false)
+
+mt.__namecall = newcclosure(function(self, ...)
     local method = getnamecallmethod()
     local args = {...}
     
-    if not checkcaller() and (method == "FireServer" or method == "InvokeServer") then
-        if _G.AimSkills.Enabled then
-            local eventName = tostring(self)
-            
-            -- طباعة اسم الإيفنت للتشخيص
-            print("🔍 Event: " .. eventName)
-            
-            -- فحص المهارات
-            if (eventName:find("Z") or eventName:find("KeyZ")) and _G.AimSkills.Skills.Z then
-                local target = GetClosestPlayer()
-                if target then AimAtPlayer(target) end
-                
-            elseif (eventName:find("X") or eventName:find("KeyX")) and _G.AimSkills.Skills.X then
-                local target = GetClosestPlayer()
-                if target then AimAtPlayer(target) end
-                
-            elseif (eventName:find("C") or eventName:find("KeyC")) and _G.AimSkills.Skills.C then
-                local target = GetClosestPlayer()
-                if target then AimAtPlayer(target) end
-                
-            elseif (eventName:find("V") or eventName:find("KeyV")) and _G.AimSkills.Skills.V then
-                local target = GetClosestPlayer()
-                if target then AimAtPlayer(target) end
+    if _G.AimSkills.Enabled and method == "FireServer" then
+        local name = tostring(self)
+        
+        -- اطبع اسم الإيفنت للتشخيص
+        print("Event:", name)
+        
+        -- إذا كان الإيفنت متعلق بالمهارات
+        if name:lower():find("skill") or name:lower():find("combat") or name:lower():find("ability") then
+            local target = GetTarget()
+            if target then
+                Aim(target)
             end
         end
     end
     
-    return OldNamecall(self, ...)
-end))
+    return old(self, ...)
+end)
+
+setreadonly(mt, true)
 
 -- ═══════════════════════════════════════
--- UI (بسيطة بدون مشاكل)
+-- UI بسيطة
 -- ═══════════════════════════════════════
 
-Tab:AddToggle("Enable", {
-    Title = "🎯 Enable Auto Aim",
-    Default = true
-}):OnChanged(function(v)
+local MainToggle = Tab:AddToggle("MainToggle", {
+    Title = "🎯 Enable Aim",
+    Default = false
+})
+
+MainToggle:OnChanged(function(v)
     _G.AimSkills.Enabled = v
-    print(v and "✅ Enabled" or "❌ Disabled")
+    if v then
+        Fluent:Notify({Title = "Aim Skills", Content = "✅ Enabled", Duration = 2})
+    else
+        Fluent:Notify({Title = "Aim Skills", Content = "❌ Disabled", Duration = 2})
+    end
 end)
 
-Tab:AddToggle("Z", {Title = "Z Skill", Default = true}):OnChanged(function(v) 
-    _G.AimSkills.Skills.Z = v 
-end)
-
-Tab:AddToggle("X", {Title = "X Skill", Default = true}):OnChanged(function(v) 
-    _G.AimSkills.Skills.X = v 
-end)
-
-Tab:AddToggle("C", {Title = "C Skill", Default = true}):OnChanged(function(v) 
-    _G.AimSkills.Skills.C = v 
-end)
-
-Tab:AddToggle("V", {Title = "V Skill", Default = true}):OnChanged(function(v) 
-    _G.AimSkills.Skills.V = v 
-end)
-
-Tab:AddSlider("Dist", {
-    Title = "📏 Max Distance",
+local DistSlider = Tab:AddSlider("DistSlider", {
+    Title = "Max Distance",
     Min = 50,
-    Max = 500,
+    Max = 300,
     Default = 200,
     Rounding = 0
-}):OnChanged(function(v)
+})
+
+DistSlider:OnChanged(function(v)
     _G.AimSkills.Distance = v
 end)
 
 Tab:AddButton({
-    Title = "🧪 Test Aim",
+    Title = "Test",
     Callback = function()
-        local target = GetClosestPlayer()
+        local target = GetTarget()
         if target then
-            AimAtPlayer(target)
-            print("✅ Test: Aimed at " .. target.Name)
+            Aim(target)
+            Fluent:Notify({Title = "Test", Content = "Aimed at: " .. target.Name, Duration = 2})
         else
-            print("❌ No target found")
+            Fluent:Notify({Title = "Test", Content = "No target!", Duration = 2})
         end
     end
 })
 
-print("✅ Vortex Hub - Aim Skills Loaded")
-print("📋 Press F9 to see event names")
+Tab:AddParagraph({
+    Title = "📋 Instructions",
+    Content = "1. Enable the toggle\n2. Use your skills (Z/X/C/V)\n3. Check F9 console for event names"
+})
+
+Fluent:Notify({
+    Title = "Vortex Hub", 
+    Content = "Loaded! Press F9 to see events", 
+    Duration = 3
+})
+
+print("✅ Loaded - Press F9 and use skills to see event names")

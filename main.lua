@@ -1,168 +1,139 @@
 --[[
-    VORTEX HUB - Premium UI
-    Style: Fluent (Like the image provided)
+    VORTEX HUB - Redz Style (Mobile UI)
+    Exact copy of the image you wanted
 ]]--
 
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/REDzHUB/RedzLibV2/main/redzlibv2.lua"))()
 
-local Window = Fluent:CreateWindow({
-    Title = "Vortex Hub " .. "v2.0",
-    SubTitle = "by aq05390533-art",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true, -- يخلي الخلفية شفافة وضبابية زي الصورة
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
+local Window = Library:MakeWindow({
+  Title = "Vortex Hub",
+  SubTitle = "by aq05390533",
+  SaveFolder = "VortexConfig" -- يحفظ إعداداتك تلقائي
 })
 
--- إنشاء التبويبات (القائمة الجانبية)
-local Tabs = {
-    Farm = Window:AddTab({ Title = "Farm", Icon = "sword" }),
-    Stats = Window:AddTab({ Title = "Stats", Icon = "bar-chart-2" }),
-    Teleport = Window:AddTab({ Title = "Teleport", Icon = "map" }),
-    Raids = Window:AddTab({ Title = "Raids", Icon = "skull" }),
-    Shop = Window:AddTab({ Title = "Shop", Icon = "shopping-cart" }),
-    Misc = Window:AddTab({ Title = "Misc", Icon = "settings" })
-}
+print("✅ Vortex Hub Loading...")
 
-local Options = Fluent.Options
-
--- =============================================
+-- ==========================================
 -- تبويب Farm (زي الصورة بالضبط)
--- =============================================
+-- ==========================================
+local FarmTab = Window:MakeTab({"Farm", "http://www.roblox.com/asset/?id=8353802524"})
 
-Tabs.Farm:AddDropdown("WeaponSelect", {
-    Title = "Select Weapon",
-    Values = {"Melee", "Sword", "Blox Fruit"},
-    Multi = false,
-    Default = 1,
+-- القائمة المنسدلة حقت السلاح (مهمة جداً زي الصورة)
+FarmTab:AddDropdown({
+  Name = "Farm Tool",
+  Options = {"Melee", "Sword", "Blox Fruit"},
+  Default = "Melee",
+  Callback = function(Value)
+      getgenv().Weapon = Value
+  end
 })
 
-Tabs.Farm:AddSection("Auto Farm")
+FarmTab:AddSection({"Auto Farm"})
 
-local FarmToggle = Tabs.Farm:AddToggle("AutoFarmLevel", {
-    Title = "Auto Farm Level",
-    Description = "Fastest method to max level",
-    Default = false
+-- زر الأوتو فارم (Toggle)
+FarmTab:AddToggle({
+  Name = "Auto Farm Level",
+  Default = false,
+  Callback = function(Value)
+      getgenv().AutoFarm = Value
+      if Value then
+          -- كود التشغيل
+      end
+  end
 })
 
-FarmToggle:OnChanged(function()
-    getgenv().AutoFarm = Options.AutoFarmLevel.Value
-    if Options.AutoFarmLevel.Value then
-        Fluent:Notify({
-            Title = "Vortex Hub",
-            Content = "Auto Farm Started!",
-            Duration = 3
-        })
-        -- كود التشغيل يجي هنا
-    end
-end)
-
-Tabs.Farm:AddToggle("AutoFarmNearest", {
-    Title = "Auto Farm Nearest",
-    Description = "Farm mobs near you",
-    Default = false
+FarmTab:AddToggle({
+  Name = "Auto Farm Nearest",
+  Default = false,
+  Callback = function(Value)
+      getgenv().FarmNearest = Value
+  end
 })
 
-Tabs.Farm:AddSection("Farm Level")
+FarmTab:AddSection({"Farm Level"})
 
-Tabs.Farm:AddToggle("SkyPheaFarm", {
-    Title = "Sky Phea Farm",
-    Default = false
+FarmTab:AddToggle({
+  Name = "Sky Phea Farm",
+  Default = false,
+  Callback = function(Value)
+      -- Code here
+  end
 })
 
-Tabs.Farm:AddToggle("PlayerHunter", {
-    Title = "Player Hunter Quest",
-    Default = false
+FarmTab:AddToggle({
+  Name = "Player Hunter Quest",
+  Default = false,
+  Callback = function(Value)
+      -- Code here
+  end
 })
 
-Tabs.Farm:AddSection("Chests")
+FarmTab:AddSection({"Chest"})
 
-Tabs.Farm:AddToggle("AutoChest", {
-    Title = "Auto Chest (Tween)",
-    Default = false,
-    Callback = function(Value)
-        getgenv().AutoChest = Value
-    end
+FarmTab:AddToggle({
+  Name = "Auto Chest <Tween>",
+  Default = false,
+  Callback = function(Value)
+      getgenv().AutoChest = Value
+  end
 })
 
--- =============================================
+-- ==========================================
 -- تبويب Stats
--- =============================================
+-- ==========================================
+local StatsTab = Window:MakeTab({"Stats", "http://www.roblox.com/asset/?id=8353801064"})
 
-Tabs.Stats:AddSection("Stats Settings")
+StatsTab:AddSection({"Stats Settings"})
 
-Tabs.Stats:AddSlider("StatsPoints", {
-    Title = "Point Allocation %",
-    Description = "Choose percentage to add",
-    Default = 50,
-    Min = 0,
-    Max = 100,
-    Rounding = 0,
+StatsTab:AddToggle({
+  Name = "Auto Stats (Melee/Def/Sword)",
+  Default = false,
+  Callback = function(Value)
+      getgenv().AutoStats = Value
+  end
 })
 
-Tabs.Stats:AddToggle("AutoMelee", { Title = "Auto Melee", Default = false })
-Tabs.Stats:AddToggle("AutoDefense", { Title = "Auto Defense", Default = false })
-Tabs.Stats:AddToggle("AutoSword", { Title = "Auto Sword", Default = false })
-Tabs.Stats:AddToggle("AutoFruit", { Title = "Auto Fruit", Default = false })
-
--- =============================================
+-- ==========================================
 -- تبويب Teleport
--- =============================================
+-- ==========================================
+local TeleportTab = Window:MakeTab({"Teleport", "http://www.roblox.com/asset/?id=8353800624"})
 
-Tabs.Teleport:AddDropdown("IslandSelect", {
-    Title = "Select Island",
-    Values = {"Jungle", "Pirate Village", "Marine Fortress", "Skylands", "Prison", "Colosseum", "Magma Village"},
-    Multi = false,
-    Default = 1,
+TeleportTab:AddDropdown({
+  Name = "Select Island",
+  Options = {"Jungle", "Pirate Village", "Marine Fortress", "Skylands", "Second Sea", "Third Sea"},
+  Default = "Jungle",
+  Callback = function(Value)
+      -- Teleport code
+  end
 })
 
-Tabs.Teleport:AddButton({
-    Title = "Teleport",
-    Description = "Teleport to selected island",
-    Callback = function()
-        Fluent:Notify({Title = "Vortex Hub", Content = "Teleporting...", Duration = 3})
-    end
+TeleportTab:AddButton({
+  Name = "Teleport Now",
+  Callback = function()
+      -- Teleport function
+  end
 })
 
--- =============================================
--- تبويب Misc (FPS Boost وغيره)
--- =============================================
+-- ==========================================
+-- تبويب Misc
+-- ==========================================
+local MiscTab = Window:MakeTab({"Misc", "http://www.roblox.com/asset/?id=8353803144"})
 
-Tabs.Misc:AddButton({
-    Title = "FPS Boost",
-    Description = "Remove lag",
-    Callback = function()
-        for i,v in pairs(game:GetDescendants()) do
-            if v:IsA("Part") then v.Material = "Plastic" end
-        end
-        Fluent:Notify({Title = "System", Content = "FPS Boost Applied!", Duration = 3})
-    end
+MiscTab:AddButton({
+  Name = "FPS Boost",
+  Callback = function()
+      for i,v in pairs(game:GetDescendants()) do
+          if v:IsA("Part") then v.Material = "Plastic" end
+      end
+  end
 })
 
-Tabs.Misc:AddButton({
-    Title = "Rejoin Server",
-    Callback = function()
-        game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
-    end
+MiscTab:AddButton({
+  Name = "Server Hop",
+  Callback = function()
+      -- Server hop code
+  end
 })
 
--- حفظ الإعدادات
-SaveManager:SetLibrary(Fluent)
-InterfaceManager:SetLibrary(Fluent)
-SaveManager:IgnoreThemeSettings()
-SaveManager:SetIgnoreIndexes({})
-InterfaceManager:BuildInterfaceSection(Tabs.Misc)
-SaveManager:BuildConfigSection(Tabs.Misc)
-
-Window:SelectTab(1)
-
-Fluent:Notify({
-    Title = "Vortex Hub",
-    Content = "Loaded Successfully! Team: " .. (getgenv().Team or "Marines"),
-    Duration = 8
-})
-
-print("✅ Vortex Hub Loaded | UI Style: Fluent")
+-- بداية السكربت
+Library:Init()

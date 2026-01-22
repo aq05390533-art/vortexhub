@@ -1,6 +1,6 @@
 --[[
     VORTEX HUB V3 - ANTI-KICK SYSTEM
-    Fixed Quest → Mob Flow
+    Fixed Quest Selection (من الأعلى للأقل)
 ]]--
 
 -- =============================================
@@ -121,176 +121,175 @@ function DisableNoClip()
 end
 
 -- =============================================
--- QUEST DATA
+-- QUEST DATA (مرتب من الأعلى للأقل)
 -- =============================================
 local QuestList = {
-    -- ========== FIRST SEA ==========
-    {Lvl = {1, 9}, Quest = "BanditQuest1", QuestLvl = 1, Enemy = "Bandit", 
-     QuestPos = CFrame.new(1059.37, 16.55, 1550.42),
-     MobPos = CFrame.new(1145.45, 16.55, 1550.18)},
-     
-    {Lvl = {10, 14}, Quest = "JungleQuest", QuestLvl = 1, Enemy = "Monkey", 
-     QuestPos = CFrame.new(-1598.09, 35.55, 153.38),
-     MobPos = CFrame.new(-1448.51, 49.85, 11.46)},
-     
-    {Lvl = {15, 29}, Quest = "BuggyQuest1", QuestLvl = 1, Enemy = "Bandit", 
-     QuestPos = CFrame.new(-1119.81, 4.79, 3831.37),
-     MobPos = CFrame.new(-1145.45, 16.55, 3550.18)},
-     
-    {Lvl = {30, 39}, Quest = "DesertQuest", QuestLvl = 1, Enemy = "Desert Bandit", 
-     QuestPos = CFrame.new(897.03, 6.45, 4388.93),
-     MobPos = CFrame.new(932.13, 6.45, 4488.38)},
-     
-    {Lvl = {60, 74}, Quest = "MarineQuest2", QuestLvl = 1, Enemy = "Chief Petty Officer", 
-     QuestPos = CFrame.new(-5039.59, 28.65, 4324.68),
-     MobPos = CFrame.new(-4882.69, 22.65, 4255.53)},
-     
-    {Lvl = {75, 89}, Quest = "AreaQuest", QuestLvl = 1, Enemy = "Sky Bandit", 
-     QuestPos = CFrame.new(-4841.83, 717.67, -2623.96),
-     MobPos = CFrame.new(-4955.72, 717.67, -2953.18)},
-     
-    {Lvl = {100, 119}, Quest = "PrisonerQuest", QuestLvl = 1, Enemy = "Prisoner", 
-     QuestPos = CFrame.new(5308.93, 1.66, 475.12),
-     MobPos = CFrame.new(5411.93, 1.66, 475.12)},
-     
-    {Lvl = {150, 174}, Quest = "MagmaQuest", QuestLvl = 1, Enemy = "Lava Pirate", 
-     QuestPos = CFrame.new(-5234.61, 51.95, -4732.22),
-     MobPos = CFrame.new(-5308.29, 51.95, -4890.31)},
-     
-    -- ========== SECOND SEA ==========
-    {Lvl = {1300, 1324}, Quest = "ChocQuest1", QuestLvl = 1, Enemy = "Chocolate Bar Battler", 
-     QuestPos = CFrame.new(233.23, 29.88, -12201.23),
-     MobPos = CFrame.new(172.23, 29.88, -12305.48)},
-     
-    {Lvl = {1350, 1374}, Quest = "CocoaQuest", QuestLvl = 1, Enemy = "Cocoa Warrior", 
+    -- ========== THIRD SEA (من الأعلى للأقل) ==========
+    {Lvl = {2425, 2450}, Quest = "ChocQuest2", QuestLvl = 2, Enemy = "Cocoa Warrior", 
      QuestPos = CFrame.new(117.91, 73.10, -12319.44),
      MobPos = CFrame.new(58.91, 73.10, -12379.18)},
-     
-    -- ========== THIRD SEA ==========
-    {Lvl = {1500, 1524}, Quest = "Area1Quest", QuestLvl = 1, Enemy = "Pirate Millionaire", 
-     QuestPos = CFrame.new(-288.61, 43.82, 5579.86),
-     MobPos = CFrame.new(-435.68, 43.82, 5583.66)},
-     
-    {Lvl = {1525, 1574}, Quest = "Area1Quest", QuestLvl = 2, Enemy = "Pistol Billionaire", 
-     QuestPos = CFrame.new(-295.35, 43.82, 5559.84),
-     MobPos = CFrame.new(-379.14, 43.82, 5984.03)},
-     
-    {Lvl = {1575, 1599}, Quest = "Area2Quest", QuestLvl = 1, Enemy = "Dragon Crew Warrior", 
-     QuestPos = CFrame.new(5834.14, 51.48, -1103.13),
-     MobPos = CFrame.new(6241.59, 51.48, -1243.35)},
-     
-    {Lvl = {1600, 1624}, Quest = "Area2Quest", QuestLvl = 2, Enemy = "Dragon Crew Archer", 
-     QuestPos = CFrame.new(6483.28, 383.14, 139.45),
-     MobPos = CFrame.new(6594.73, 383.14, 139.45)},
-     
-    {Lvl = {1625, 1649}, Quest = "MarineTreeIsland", QuestLvl = 1, Enemy = "Female Islander", 
-     QuestPos = CFrame.new(5243.14, 601.65, 344.59),
-     MobPos = CFrame.new(5315.19, 601.65, 244.03)},
-     
-    {Lvl = {1650, 1699}, Quest = "MarineTreeIsland", QuestLvl = 2, Enemy = "Giant Islander", 
-     QuestPos = CFrame.new(5658.15, 601.65, -57.35),
-     MobPos = CFrame.new(5347.41, 601.65, -106.28)},
-     
-    {Lvl = {1700, 1724}, Quest = "ForgottenQuest", QuestLvl = 1, Enemy = "Marine Commodore", 
-     QuestPos = CFrame.new(-2850.20, 72.99, -3300.90),
-     MobPos = CFrame.new(-2850.20, 72.99, -3208.35)},
-     
-    {Lvl = {1725, 1774}, Quest = "ForgottenQuest", QuestLvl = 2, Enemy = "Marine Rear Admiral", 
-     QuestPos = CFrame.new(-5545.12, 28.65, -7755.08),
-     MobPos = CFrame.new(-5636.09, 28.65, -7755.08)},
-     
-    {Lvl = {1775, 1799}, Quest = "DeepForestIsland", QuestLvl = 1, Enemy = "Mythological Pirate", 
-     QuestPos = CFrame.new(-13234.57, 331.58, -7625.78),
-     MobPos = CFrame.new(-13508.62, 331.58, -7925.48)},
-     
-    {Lvl = {1800, 1849}, Quest = "DeepForestIsland2", QuestLvl = 1, Enemy = "Jungle Pirate", 
-     QuestPos = CFrame.new(-11975.96, 331.73, -10620.03),
-     MobPos = CFrame.new(-12121.27, 331.73, -10654.84)},
-     
-    {Lvl = {1850, 1899}, Quest = "DeepForestIsland3", QuestLvl = 1, Enemy = "Musketeer Pirate", 
-     QuestPos = CFrame.new(-13283.43, 386.90, -9902.06),
-     MobPos = CFrame.new(-13388.43, 386.90, -9902.06)},
-     
-    {Lvl = {1900, 1924}, Quest = "PiratePortQuest", QuestLvl = 1, Enemy = "Pirate", 
-     QuestPos = CFrame.new(-6240.98, 38.30, 5577.57),
-     MobPos = CFrame.new(-6305.98, 38.30, 5577.57)},
-     
-    {Lvl = {1925, 1974}, Quest = "PiratePortQuest", QuestLvl = 2, Enemy = "Ship Deckhand", 
-     QuestPos = CFrame.new(-6508.65, 39.00, 5736.06),
-     MobPos = CFrame.new(-6508.65, 39.00, 5836.06)},
-     
-    {Lvl = {1975, 1999}, Quest = "AmazonQuest", QuestLvl = 1, Enemy = "Amazon Warrior", 
-     QuestPos = CFrame.new(5497.07, 51.48, -1800.01),
-     MobPos = CFrame.new(5386.07, 51.48, -1800.01)},
-     
-    {Lvl = {2000, 2024}, Quest = "AmazonQuest", QuestLvl = 2, Enemy = "Amazon Archer", 
-     QuestPos = CFrame.new(5251.51, 51.61, -1655.34),
-     MobPos = CFrame.new(5145.51, 51.61, -1655.34)},
-     
-    -- ========== HAUNTED CASTLE ==========
-    {Lvl = {2025, 2049}, Quest = "HauntedQuest1", QuestLvl = 1, Enemy = "Living Zombie", 
-     QuestPos = CFrame.new(-9479.43, 141.22, 5566.09),
-     MobPos = CFrame.new(-10144.07, 138.65, 5975.96)},
-     
-    {Lvl = {2050, 2074}, Quest = "HauntedQuest1", QuestLvl = 2, Enemy = "Demonic Soul", 
-     QuestPos = CFrame.new(-9515.62, 172.13, 6078.89),
-     MobPos = CFrame.new(-9712.03, 172.13, 6144.49)},
-     
-    {Lvl = {2075, 2099}, Quest = "HauntedQuest2", QuestLvl = 1, Enemy = "Posessed Mummy", 
-     QuestPos = CFrame.new(-9546.99, 172.13, 6079.08),
-     MobPos = CFrame.new(-9738.99, 172.13, 6079.08)},
-     
-    {Lvl = {2100, 2124}, Quest = "HauntedQuest2", QuestLvl = 2, Enemy = "Peanut Scout", 
-     QuestPos = CFrame.new(-2104.39, 38.10, -10192.54),
-     MobPos = CFrame.new(-2188.78, 38.10, -10289.54)},
-     
-    {Lvl = {2125, 2149}, Quest = "NutsIslandQuest", QuestLvl = 1, Enemy = "Peanut President", 
-     QuestPos = CFrame.new(-2150.41, 38.32, -10520.01),
-     MobPos = CFrame.new(-1850.41, 38.32, -10520.01)},
-     
-    {Lvl = {2150, 2199}, Quest = "NutsIslandQuest", QuestLvl = 2, Enemy = "Captain Elephant", 
-     QuestPos = CFrame.new(-2188.78, 38.10, -9942.58),
-     MobPos = CFrame.new(-2188.78, 38.10, -10042.58)},
-     
-    {Lvl = {2200, 2224}, Quest = "IceCreamIslandQuest", QuestLvl = 1, Enemy = "Ice Cream Chef", 
-     QuestPos = CFrame.new(-820.66, 65.81, -10965.97),
-     MobPos = CFrame.new(-641.64, 125.95, -11062.80)},
-     
-    {Lvl = {2225, 2249}, Quest = "IceCreamIslandQuest", QuestLvl = 2, Enemy = "Ice Cream Commander", 
-     QuestPos = CFrame.new(-558.07, 125.95, -10965.98),
-     MobPos = CFrame.new(-558.07, 125.95, -11062.80)},
-     
-    {Lvl = {2250, 2274}, Quest = "CakeQuest1", QuestLvl = 1, Enemy = "Cookie Crafter", 
-     QuestPos = CFrame.new(-2021.77, 37.80, -12027.74),
-     MobPos = CFrame.new(-2374.47, 37.80, -12142.31)},
-     
-    {Lvl = {2275, 2299}, Quest = "CakeQuest1", QuestLvl = 2, Enemy = "Cake Guard", 
-     QuestPos = CFrame.new(-1570.91, 37.80, -12224.68),
-     MobPos = CFrame.new(-1570.91, 37.80, -12424.68)},
-     
-    {Lvl = {2300, 2324}, Quest = "CakeQuest2", QuestLvl = 1, Enemy = "Baking Staff", 
-     QuestPos = CFrame.new(-1927.37, 37.80, -12983.11),
-     MobPos = CFrame.new(-1927.37, 37.80, -13083.11)},
-     
-    {Lvl = {2325, 2349}, Quest = "CakeQuest2", QuestLvl = 2, Enemy = "Head Baker", 
-     QuestPos = CFrame.new(-2251.51, 52.25, -12373.53),
-     MobPos = CFrame.new(-2251.51, 52.25, -12573.53)},
-     
-    {Lvl = {2350, 2374}, Quest = "ChocQuest1", QuestLvl = 1, Enemy = "Chocolate Bar Battler", 
-     QuestPos = CFrame.new(232.66, 24.82, -12243.20),
-     MobPos = CFrame.new(172.23, 29.88, -12305.48)},
-     
-    {Lvl = {2375, 2399}, Quest = "ChocQuest1", QuestLvl = 2, Enemy = "Sweet Thief", 
-     QuestPos = CFrame.new(150.51, 30.69, -12774.61),
-     MobPos = CFrame.new(150.51, 30.69, -12874.61)},
      
     {Lvl = {2400, 2424}, Quest = "ChocQuest2", QuestLvl = 1, Enemy = "Candy Rebel", 
      QuestPos = CFrame.new(-12350.91, 332.40, -10507.69),
      MobPos = CFrame.new(-12350.91, 332.40, -10607.69)},
      
-    {Lvl = {2425, 2450}, Quest = "ChocQuest2", QuestLvl = 2, Enemy = "Cocoa Warrior", 
+    {Lvl = {2375, 2399}, Quest = "ChocQuest1", QuestLvl = 2, Enemy = "Sweet Thief", 
+     QuestPos = CFrame.new(150.51, 30.69, -12774.61),
+     MobPos = CFrame.new(150.51, 30.69, -12874.61)},
+     
+    {Lvl = {2350, 2374}, Quest = "ChocQuest1", QuestLvl = 1, Enemy = "Chocolate Bar Battler", 
+     QuestPos = CFrame.new(232.66, 24.82, -12243.20),
+     MobPos = CFrame.new(172.23, 29.88, -12305.48)},
+     
+    {Lvl = {2325, 2349}, Quest = "CakeQuest2", QuestLvl = 2, Enemy = "Head Baker", 
+     QuestPos = CFrame.new(-2251.51, 52.25, -12373.53),
+     MobPos = CFrame.new(-2251.51, 52.25, -12573.53)},
+     
+    {Lvl = {2300, 2324}, Quest = "CakeQuest2", QuestLvl = 1, Enemy = "Baking Staff", 
+     QuestPos = CFrame.new(-1927.37, 37.80, -12983.11),
+     MobPos = CFrame.new(-1927.37, 37.80, -13083.11)},
+     
+    {Lvl = {2275, 2299}, Quest = "CakeQuest1", QuestLvl = 2, Enemy = "Cake Guard", 
+     QuestPos = CFrame.new(-1570.91, 37.80, -12224.68),
+     MobPos = CFrame.new(-1570.91, 37.80, -12424.68)},
+     
+    {Lvl = {2250, 2274}, Quest = "CakeQuest1", QuestLvl = 1, Enemy = "Cookie Crafter", 
+     QuestPos = CFrame.new(-2021.77, 37.80, -12027.74),
+     MobPos = CFrame.new(-2374.47, 37.80, -12142.31)},
+     
+    {Lvl = {2225, 2249}, Quest = "IceCreamIslandQuest", QuestLvl = 2, Enemy = "Ice Cream Commander", 
+     QuestPos = CFrame.new(-558.07, 125.95, -10965.98),
+     MobPos = CFrame.new(-558.07, 125.95, -11062.80)},
+     
+    {Lvl = {2200, 2224}, Quest = "IceCreamIslandQuest", QuestLvl = 1, Enemy = "Ice Cream Chef", 
+     QuestPos = CFrame.new(-820.66, 65.81, -10965.97),
+     MobPos = CFrame.new(-641.64, 125.95, -11062.80)},
+     
+    {Lvl = {2150, 2199}, Quest = "NutsIslandQuest", QuestLvl = 2, Enemy = "Captain Elephant", 
+     QuestPos = CFrame.new(-2188.78, 38.10, -9942.58),
+     MobPos = CFrame.new(-2188.78, 38.10, -10042.58)},
+     
+    {Lvl = {2125, 2149}, Quest = "NutsIslandQuest", QuestLvl = 1, Enemy = "Peanut President", 
+     QuestPos = CFrame.new(-2150.41, 38.32, -10520.01),
+     MobPos = CFrame.new(-1850.41, 38.32, -10520.01)},
+     
+    {Lvl = {2100, 2124}, Quest = "HauntedQuest2", QuestLvl = 2, Enemy = "Peanut Scout", 
+     QuestPos = CFrame.new(-2104.39, 38.10, -10192.54),
+     MobPos = CFrame.new(-2188.78, 38.10, -10289.54)},
+     
+    {Lvl = {2075, 2099}, Quest = "HauntedQuest2", QuestLvl = 1, Enemy = "Posessed Mummy", 
+     QuestPos = CFrame.new(-9546.99, 172.13, 6079.08),
+     MobPos = CFrame.new(-9738.99, 172.13, 6079.08)},
+     
+    {Lvl = {2050, 2074}, Quest = "HauntedQuest1", QuestLvl = 2, Enemy = "Demonic Soul", 
+     QuestPos = CFrame.new(-9515.62, 172.13, 6078.89),
+     MobPos = CFrame.new(-9712.03, 172.13, 6144.49)},
+     
+    {Lvl = {2025, 2049}, Quest = "HauntedQuest1", QuestLvl = 1, Enemy = "Living Zombie", 
+     QuestPos = CFrame.new(-9479.43, 141.22, 5566.09),
+     MobPos = CFrame.new(-10144.07, 138.65, 5975.96)},
+     
+    {Lvl = {2000, 2024}, Quest = "AmazonQuest", QuestLvl = 2, Enemy = "Amazon Archer", 
+     QuestPos = CFrame.new(5251.51, 51.61, -1655.34),
+     MobPos = CFrame.new(5145.51, 51.61, -1655.34)},
+     
+    {Lvl = {1975, 1999}, Quest = "AmazonQuest", QuestLvl = 1, Enemy = "Amazon Warrior", 
+     QuestPos = CFrame.new(5497.07, 51.48, -1800.01),
+     MobPos = CFrame.new(5386.07, 51.48, -1800.01)},
+     
+    {Lvl = {1925, 1974}, Quest = "PiratePortQuest", QuestLvl = 2, Enemy = "Ship Deckhand", 
+     QuestPos = CFrame.new(-6508.65, 39.00, 5736.06),
+     MobPos = CFrame.new(-6508.65, 39.00, 5836.06)},
+     
+    {Lvl = {1900, 1924}, Quest = "PiratePortQuest", QuestLvl = 1, Enemy = "Pirate", 
+     QuestPos = CFrame.new(-6240.98, 38.30, 5577.57),
+     MobPos = CFrame.new(-6305.98, 38.30, 5577.57)},
+     
+    {Lvl = {1850, 1899}, Quest = "DeepForestIsland3", QuestLvl = 1, Enemy = "Musketeer Pirate", 
+     QuestPos = CFrame.new(-13283.43, 386.90, -9902.06),
+     MobPos = CFrame.new(-13388.43, 386.90, -9902.06)},
+     
+    {Lvl = {1800, 1849}, Quest = "DeepForestIsland2", QuestLvl = 1, Enemy = "Jungle Pirate", 
+     QuestPos = CFrame.new(-11975.96, 331.73, -10620.03),
+     MobPos = CFrame.new(-12121.27, 331.73, -10654.84)},
+     
+    {Lvl = {1775, 1799}, Quest = "DeepForestIsland", QuestLvl = 1, Enemy = "Mythological Pirate", 
+     QuestPos = CFrame.new(-13234.57, 331.58, -7625.78),
+     MobPos = CFrame.new(-13508.62, 331.58, -7925.48)},
+     
+    {Lvl = {1725, 1774}, Quest = "ForgottenQuest", QuestLvl = 2, Enemy = "Marine Rear Admiral", 
+     QuestPos = CFrame.new(-5545.12, 28.65, -7755.08),
+     MobPos = CFrame.new(-5636.09, 28.65, -7755.08)},
+     
+    {Lvl = {1700, 1724}, Quest = "ForgottenQuest", QuestLvl = 1, Enemy = "Marine Commodore", 
+     QuestPos = CFrame.new(-2850.20, 72.99, -3300.90),
+     MobPos = CFrame.new(-2850.20, 72.99, -3208.35)},
+     
+    {Lvl = {1650, 1699}, Quest = "MarineTreeIsland", QuestLvl = 2, Enemy = "Giant Islander", 
+     QuestPos = CFrame.new(5658.15, 601.65, -57.35),
+     MobPos = CFrame.new(5347.41, 601.65, -106.28)},
+     
+    {Lvl = {1625, 1649}, Quest = "MarineTreeIsland", QuestLvl = 1, Enemy = "Female Islander", 
+     QuestPos = CFrame.new(5243.14, 601.65, 344.59),
+     MobPos = CFrame.new(5315.19, 601.65, 244.03)},
+     
+    {Lvl = {1600, 1624}, Quest = "Area2Quest", QuestLvl = 2, Enemy = "Dragon Crew Archer", 
+     QuestPos = CFrame.new(6483.28, 383.14, 139.45),
+     MobPos = CFrame.new(6594.73, 383.14, 139.45)},
+     
+    {Lvl = {1575, 1599}, Quest = "Area2Quest", QuestLvl = 1, Enemy = "Dragon Crew Warrior", 
+     QuestPos = CFrame.new(5834.14, 51.48, -1103.13),
+     MobPos = CFrame.new(6241.59, 51.48, -1243.35)},
+     
+    {Lvl = {1525, 1574}, Quest = "Area1Quest", QuestLvl = 2, Enemy = "Pistol Billionaire", 
+     QuestPos = CFrame.new(-295.35, 43.82, 5559.84),
+     MobPos = CFrame.new(-379.14, 43.82, 5984.03)},
+     
+    {Lvl = {1500, 1524}, Quest = "Area1Quest", QuestLvl = 1, Enemy = "Pirate Millionaire", 
+     QuestPos = CFrame.new(-288.61, 43.82, 5579.86),
+     MobPos = CFrame.new(-435.68, 43.82, 5583.66)},
+     
+    -- ========== SECOND SEA ==========
+    {Lvl = {1350, 1374}, Quest = "CocoaQuest", QuestLvl = 1, Enemy = "Cocoa Warrior", 
      QuestPos = CFrame.new(117.91, 73.10, -12319.44),
-     MobPos = CFrame.new(58.91, 73.10, -12379.18)}
+     MobPos = CFrame.new(58.91, 73.10, -12379.18)},
+     
+    {Lvl = {1300, 1324}, Quest = "ChocQuest1", QuestLvl = 1, Enemy = "Chocolate Bar Battler", 
+     QuestPos = CFrame.new(233.23, 29.88, -12201.23),
+     MobPos = CFrame.new(172.23, 29.88, -12305.48)},
+     
+    -- ========== FIRST SEA ==========
+    {Lvl = {150, 174}, Quest = "MagmaQuest", QuestLvl = 1, Enemy = "Lava Pirate", 
+     QuestPos = CFrame.new(-5234.61, 51.95, -4732.22),
+     MobPos = CFrame.new(-5308.29, 51.95, -4890.31)},
+     
+    {Lvl = {100, 119}, Quest = "PrisonerQuest", QuestLvl = 1, Enemy = "Prisoner", 
+     QuestPos = CFrame.new(5308.93, 1.66, 475.12),
+     MobPos = CFrame.new(5411.93, 1.66, 475.12)},
+     
+    {Lvl = {75, 89}, Quest = "AreaQuest", QuestLvl = 1, Enemy = "Sky Bandit", 
+     QuestPos = CFrame.new(-4841.83, 717.67, -2623.96),
+     MobPos = CFrame.new(-4955.72, 717.67, -2953.18)},
+     
+    {Lvl = {60, 74}, Quest = "MarineQuest2", QuestLvl = 1, Enemy = "Chief Petty Officer", 
+     QuestPos = CFrame.new(-5039.59, 28.65, 4324.68),
+     MobPos = CFrame.new(-4882.69, 22.65, 4255.53)},
+     
+    {Lvl = {30, 39}, Quest = "DesertQuest", QuestLvl = 1, Enemy = "Desert Bandit", 
+     QuestPos = CFrame.new(897.03, 6.45, 4388.93),
+     MobPos = CFrame.new(932.13, 6.45, 4488.38)},
+     
+    {Lvl = {15, 29}, Quest = "BuggyQuest1", QuestLvl = 1, Enemy = "Bandit", 
+     QuestPos = CFrame.new(-1119.81, 4.79, 3831.37),
+     MobPos = CFrame.new(-1145.45, 16.55, 3550.18)},
+     
+    {Lvl = {10, 14}, Quest = "JungleQuest", QuestLvl = 1, Enemy = "Monkey", 
+     QuestPos = CFrame.new(-1598.09, 35.55, 153.38),
+     MobPos = CFrame.new(-1448.51, 49.85, 11.46)},
+     
+    {Lvl = {1, 9}, Quest = "BanditQuest1", QuestLvl = 1, Enemy = "Bandit", 
+     QuestPos = CFrame.new(1059.37, 16.55, 1550.42),
+     MobPos = CFrame.new(1145.45, 16.55, 1550.18)}
 }
 
 -- =============================================
@@ -371,13 +370,17 @@ end
 function GetQuestData()
     local Level = Player.Data.Level.Value
     
+    -- البحث من الأعلى للأقل (القائمة مرتبة أصلاً)
     for _, quest in pairs(QuestList) do
         if Level >= quest.Lvl[1] and Level <= quest.Lvl[2] then
+            print("✅ Selected Quest: " .. quest.Enemy .. " (Level " .. quest.Lvl[1] .. "-" .. quest.Lvl[2] .. ")")
             return quest
         end
     end
     
-    return QuestList[1]
+    -- لو ما لقى، يرجع أول كويست
+    print("⚠️ No matching quest found, using default")
+    return QuestList[#QuestList]
 end
 
 function EquipWeapon(weaponName)
@@ -483,115 +486,151 @@ function BringMob(mob)
 end
 
 -- =============================================
--- FIXED FARM LOOP (3 STAGES)
+-- TASK-BASED FARM SYSTEM
 -- =============================================
-local FarmLoop
-local questTaken = false
-local wentToMobs = false
+local FarmTask
+local isFarming = false
 
 function StartFarm()
-    if FarmLoop then return end
+    if isFarming then return end
+    isFarming = true
     
-    FarmLoop = RunService.Heartbeat:Connect(function()
-        if not getgenv().Config.AutoFarm then
-            StopFastAttack()
-            return
-        end
-        
-        pcall(function()
-            local Quest = GetQuestData()
-            
-            -- ========== STAGE 1: TAKE QUEST ==========
-            if not CheckQuest(Quest.Enemy) then
-                questTaken = false
-                wentToMobs = false
-                StopFastAttack()
+    FarmTask = task.spawn(function()
+        while isFarming and getgenv().Config.AutoFarm do
+            local success, err = pcall(function()
+                local Quest = GetQuestData()
                 
-                print("📜 Stage 1: Taking quest for " .. Quest.Enemy)
+                print("═══════════════════════════════")
+                print("🎯 Current Target: " .. Quest.Enemy)
+                print("📊 Your Level: " .. Player.Data.Level.Value)
+                print("📋 Quest Range: " .. Quest.Lvl[1] .. "-" .. Quest.Lvl[2])
                 
-                -- أخذ الكويست
-                TakeQuest(Quest)
-                wait(3)
-                
-                -- التأكد إن الكويست اتاخد
-                if CheckQuest(Quest.Enemy) then
-                    questTaken = true
-                    print("✅ Quest confirmed!")
-                end
-                
-            -- ========== STAGE 2: GO TO MOBS ==========
-            elseif CheckQuest(Quest.Enemy) and not wentToMobs then
-                StopFastAttack()
-                print("🚀 Stage 2: Quest active! Going to mob spawn...")
-                
-                TweenToPosition(Quest.MobPos, "Traveling to " .. Quest.Enemy)
-                wait(3)
-                
-                wentToMobs = true
-                print("📍 Arrived at mob location!")
-                
-            -- ========== STAGE 3: FARM ==========
-            elseif CheckQuest(Quest.Enemy) and wentToMobs then
-                
-                -- البحث عن أقرب موب
-                local Enemy = nil
-                local nearestDistance = math.huge
-                
-                for _, mob in pairs(game.Workspace.Enemies:GetChildren()) do
-                    if mob.Name == Quest.Enemy and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and mob:FindFirstChild("HumanoidRootPart") then
-                        local distance = (mob.HumanoidRootPart.Position - RootPart.Position).Magnitude
-                        if distance < nearestDistance then
-                            nearestDistance = distance
-                            Enemy = mob
-                        end
-                    end
-                end
-                
-                -- القتال
-                if Enemy and Enemy:FindFirstChild("HumanoidRootPart") then
-                    EnableHaki()
-                    EquipWeapon(getgenv().Config.SelectedWeapon)
-                    StartFastAttack()
-                    
-                    if RootPart and Enemy.Humanoid.Health > 0 then
-                        local targetPos = Enemy.HumanoidRootPart.CFrame * CFrame.new(0, getgenv().Config.DistanceFromMob, 0)
-                        RootPart.CFrame = targetPos
-                        Humanoid.AutoRotate = false
-                        RootPart.CFrame = CFrame.new(RootPart.Position, Enemy.HumanoidRootPart.Position)
-                    end
-                    
-                    BringMob(Enemy)
-                else
-                    -- لو ما لقى موبات
+                -- ========== STEP 1: CHECK & TAKE QUEST ==========
+                if not CheckQuest(Quest.Enemy) then
+                    print("❌ No active quest detected")
                     StopFastAttack()
                     
-                    if (RootPart.Position - Quest.MobPos.Position).Magnitude > 100 then
-                        print("🔍 Lost position, returning to spawn...")
-                        TweenToPosition(Quest.MobPos, "Returning to spawn")
-                        wait(3)
+                    print("📜 Going to take quest...")
+                    TakeQuest(Quest)
+                    
+                    -- انتظار 3 ثواني للتأكد
+                    task.wait(3)
+                    
+                    -- التحقق مرة أخرى
+                    if CheckQuest(Quest.Enemy) then
+                        print("✅ Quest successfully taken!")
                     else
-                        print("⏳ Waiting for mobs to respawn...")
-                        wait(2)
+                        print("⚠️ Quest failed, retrying...")
+                        task.wait(2)
+                        return
                     end
                 end
+                
+                -- ========== STEP 2: GO TO MOB LOCATION ==========
+                print("🗺️ Quest is active, going to mob location...")
+                TweenToPosition(Quest.MobPos, "Traveling to " .. Quest.Enemy)
+                task.wait(3)
+                print("📍 Arrived at mob spawn area")
+                
+                -- ========== STEP 3: FARM LOOP ==========
+                local farmStartTime = tick()
+                local maxFarmTime = 120
+                
+                while isFarming and CheckQuest(Quest.Enemy) and (tick() - farmStartTime) < maxFarmTime do
+                    
+                    -- البحث عن أقرب موب
+                    local Enemy = nil
+                    local nearestDistance = math.huge
+                    
+                    for _, mob in pairs(game.Workspace.Enemies:GetChildren()) do
+                        if mob.Name == Quest.Enemy and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and mob:FindFirstChild("HumanoidRootPart") then
+                            local distance = (mob.HumanoidRootPart.Position - RootPart.Position).Magnitude
+                            if distance < nearestDistance then
+                                nearestDistance = distance
+                                Enemy = mob
+                            end
+                        end
+                    end
+                    
+                    -- لو لقى موب
+                    if Enemy and Enemy:FindFirstChild("HumanoidRootPart") and Enemy.Humanoid.Health > 0 then
+                        
+                        EnableHaki()
+                        EquipWeapon(getgenv().Config.SelectedWeapon)
+                        StartFastAttack()
+                        
+                        -- التحرك للموب والقتال
+                        repeat
+                            task.wait()
+                            
+                            if not isFarming or not getgenv().Config.AutoFarm then break end
+                            if not Enemy or not Enemy.Parent or Enemy.Humanoid.Health <= 0 then break end
+                            
+                            pcall(function()
+                                local targetPos = Enemy.HumanoidRootPart.CFrame * CFrame.new(0, getgenv().Config.DistanceFromMob, 0)
+                                RootPart.CFrame = targetPos
+                                Humanoid.AutoRotate = false
+                                RootPart.CFrame = CFrame.new(RootPart.Position, Enemy.HumanoidRootPart.Position)
+                                
+                                BringMob(Enemy)
+                            end)
+                            
+                        until not Enemy or not Enemy.Parent or Enemy.Humanoid.Health <= 0
+                        
+                        print("💀 Mob killed!")
+                        
+                    else
+                        -- لو ما لقى موبات
+                        StopFastAttack()
+                        
+                        local distanceToSpawn = (RootPart.Position - Quest.MobPos.Position).Magnitude
+                        
+                        if distanceToSpawn > 150 then
+                            print("🔍 Too far from spawn, returning...")
+                            TweenToPosition(Quest.MobPos, "Returning to spawn")
+                            task.wait(3)
+                        else
+                            print("⏳ Waiting for mob respawn... (" .. math.floor(distanceToSpawn) .. " studs from spawn)")
+                            task.wait(2)
+                        end
+                    end
+                    
+                    task.wait(0.5)
+                end
+                
+                print("🔄 Quest check cycle completed, restarting...")
+                task.wait(1)
+                
+            end)
+            
+            if not success then
+                warn("❌ Farm Error: " .. tostring(err))
+                task.wait(3)
             end
-        end)
+        end
+        
+        print("🛑 Farm stopped")
+        StopFastAttack()
     end)
 end
 
 function StopFarm()
-    if FarmLoop then
-        FarmLoop:Disconnect()
-        FarmLoop = nil
+    isFarming = false
+    
+    if FarmTask then
+        task.cancel(FarmTask)
+        FarmTask = nil
     end
-    questTaken = false
-    wentToMobs = false
+    
     StopFastAttack()
     DisableNoClip()
+    
     if Humanoid then 
         Humanoid.AutoRotate = true
         Humanoid:ChangeState(Enum.HumanoidStateType.Running)
     end
+    
+    print("✅ Farm completely stopped")
 end
 
 -- =============================================
@@ -716,9 +755,8 @@ Window:SelectTab(1)
 
 Fluent:Notify({
     Title = "Vortex Hub V3",
-    Content = "3-Stage Quest System Loaded! Level: " .. Player.Data.Level.Value,
+    Content = "Quest System Fixed! Level: " .. Player.Data.Level.Value,
     Duration = 5
 })
 
-print("✅ Vortex Hub V3 | 3-Stage System | Level: " .. Player.Data.Level.Value)
-print("📋 Stage 1: Take Quest → Stage 2: Travel to Mobs → Stage 3: Farm")
+print("✅ Vortex Hub V3 | Fixed Quest Selection | Level: " .. Player.Data.Level.Value)

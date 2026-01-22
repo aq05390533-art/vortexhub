@@ -1,6 +1,6 @@
 --[[
     VORTEX HUB V3 - ANTI-KICK SYSTEM
-    Ultra Safe Tween - No Collision Issues
+    Advanced Quest & Mob System
 ]]--
 
 -- =============================================
@@ -37,7 +37,7 @@ local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/
 
 local Window = Fluent:CreateWindow({
     Title = "Vortex Hub V3 | Anti-Kick",
-    SubTitle = "Ultra Safe Tween System",
+    SubTitle = "Advanced Quest System",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true,
@@ -294,7 +294,7 @@ local QuestList = {
 }
 
 -- =============================================
--- ULTRA SAFE TWEEN SYSTEM (يخترق أي شيء)
+-- ULTRA SAFE TWEEN SYSTEM
 -- =============================================
 function SafeTween(targetPos, description)
     if not RootPart or not targetPos then return end
@@ -427,7 +427,7 @@ function CheckQuest(enemyName)
 end
 
 function TakeQuest(questData)
-    if not getgenv().Config.UseQuest then return end
+    if not getgenv().Config.UseQuest then return true end
     
     if CheckQuest(questData.Enemy) then 
         return true
@@ -435,11 +435,11 @@ function TakeQuest(questData)
     
     print("📜 Taking Quest: " .. questData.Enemy)
     
-    -- الذهاب للـ Quest Giver بشكل طبيعي (Tween)
+    -- الذهاب للـ Quest Giver
     TweenToPosition(questData.QuestPos * CFrame.new(0, 5, -5), "Going to Quest NPC")
     wait(1)
     
-    -- الاقتراب من الـ NPC (Tween)
+    -- الاقتراب من الـ NPC
     SafeTween(questData.QuestPos * CFrame.new(0, 0, -3), "Approaching NPC")
     wait(0.8)
     
@@ -483,9 +483,11 @@ function BringMob(mob)
 end
 
 -- =============================================
--- MAIN FARM LOOP
+-- ADVANCED FARM LOOP (QUEST → MOB FLOW)
 -- =============================================
 local FarmLoop
+local lastQuestCheck = 0
+
 function StartFarm()
     if FarmLoop then return end
     
@@ -497,44 +499,74 @@ function StartFarm()
         
         pcall(function()
             local Quest = GetQuestData()
+            local currentTime = tick()
             
-            -- خطوة 1: أخذ الكويست
+            -- خطوة 1: فحص الكويست كل 5 ثواني فقط
             if not CheckQuest(Quest.Enemy) then
-                StopFastAttack()
-                print("🎯 Target: " .. Quest.Enemy)
-                TakeQuest(Quest)
-                wait(2)
+                if currentTime - lastQuestCheck > 5 then
+                    StopFastAttack()
+                    print("📜 No active quest, taking: " .. Quest.Enemy)
+                    
+                    -- أخذ الكويست
+                    local questTaken = TakeQuest(Quest)
+                    lastQuestCheck = currentTime
+                    
+                    -- الانتظار والذهاب للموبات
+                    if questTaken then
+                        wait(2)
+                        
+                        if CheckQuest(Quest.Enemy) then
+                            print("✅ Quest active! Going to mobs...")
+                            TweenToPosition(Quest.MobPos, "Traveling to " .. Quest.Enemy)
+                            wait(3)
+                        end
+                    end
+                end
                 return
             end
             
-            -- خطوة 2: البحث عن العدو
+            -- خطوة 2: البحث عن العدو في المنطقة
             local Enemy = nil
+            local nearestDistance = math.huge
+            
             for _, mob in pairs(game.Workspace.Enemies:GetChildren()) do
-                if mob.Name == Quest.Enemy and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
-                    Enemy = mob
-                    break
+                if mob.Name == Quest.Enemy and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and mob:FindFirstChild("HumanoidRootPart") then
+                    local distance = (mob.HumanoidRootPart.Position - RootPart.Position).Magnitude
+                    if distance < nearestDistance then
+                        nearestDistance = distance
+                        Enemy = mob
+                    end
                 end
             end
             
-            -- خطوة 3: القتال
+            -- خطوة 3: المعركة
             if Enemy and Enemy:FindFirstChild("HumanoidRootPart") then
                 EnableHaki()
                 EquipWeapon(getgenv().Config.SelectedWeapon)
                 StartFastAttack()
                 
-                if RootPart then
-                    RootPart.CFrame = Enemy.HumanoidRootPart.CFrame * CFrame.new(0, getgenv().Config.DistanceFromMob, 0)
+                -- الحركة للعدو
+                if RootPart and Enemy.Humanoid.Health > 0 then
+                    local targetPos = Enemy.HumanoidRootPart.CFrame * CFrame.new(0, getgenv().Config.DistanceFromMob, 0)
+                    RootPart.CFrame = targetPos
                     Humanoid.AutoRotate = false
                     RootPart.CFrame = CFrame.new(RootPart.Position, Enemy.HumanoidRootPart.Position)
                 end
                 
                 BringMob(Enemy)
+                
             else
+                -- خطوة 4: لو ما لقى موبات، يروح لمكان السبون
                 StopFastAttack()
-                if Quest.MobPos then
-                    print("🔍 Searching for mobs...")
+                
+                if Quest.MobPos and (RootPart.Position - Quest.MobPos.Position).Magnitude > 50 then
+                    print("🔍 Searching for " .. Quest.Enemy .. "...")
                     TweenToPosition(Quest.MobPos, "Going to Mob Spawn")
-                    wait(3)
+                    wait(4)
+                else
+                    -- لو في المكان وما لقى موبات، ينتظر شوي
+                    print("⏳ Waiting for mobs to spawn...")
+                    wait(2)
                 end
             end
         end)
@@ -676,8 +708,8 @@ Window:SelectTab(1)
 
 Fluent:Notify({
     Title = "Vortex Hub V3",
-    Content = "Ultra Safe Tween Loaded! Level: " .. Player.Data.Level.Value,
+    Content = "Advanced Quest System Loaded! Level: " .. Player.Data.Level.Value,
     Duration = 5
 })
 
-print("✅ Vortex Hub V3 | Ultra Safe Tween | No Collision Issues | Level: " .. Player.Data.Level.Value)
+print("✅ Vortex Hub V3 | Advanced Quest System | Level: " .. Player.Data.Level.Value)

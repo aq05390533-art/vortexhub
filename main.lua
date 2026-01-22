@@ -1,6 +1,6 @@
 --[[
 VORTEX HUB V3 - ANTI-KICK SYSTEM
-Bypass Detection: NoClip + Checkpoint TP
+Fixed Auto Farm Level Selection
 ]]--
 
 -- =============================================
@@ -123,7 +123,7 @@ function DisableNoClip()
 end
 
 -- =============================================
--- QUEST DATA
+-- QUEST DATA (مرتبة من الأصغر للأكبر)
 -- =============================================
 local QuestList = {
     -- ========== FIRST SEA ==========
@@ -229,7 +229,7 @@ local QuestList = {
      QuestPos = CFrame.new(5251.51, 51.61, -1655.34),
      MobPos = CFrame.new(5145.51, 51.61, -1655.34)},
      
-    -- ========== HAUNTED CASTLE ==========
+    -- ========== HAUNTED CASTLE ========== 
     {Lvl = {2025, 2049}, Quest = "HauntedQuest1", QuestLvl = 1, Enemy = "Living Zombie", 
      QuestPos = CFrame.new(-9479.43, 141.22, 5566.09),
      MobPos = CFrame.new(-10144.07, 138.65, 5975.96)},
@@ -296,27 +296,39 @@ local QuestList = {
 }
 
 -- =============================================
--- IMPROVED TELEPORT WITH BYPASS
+-- ✅ FIX: GET CORRECT QUEST DATA
 -- =============================================
 function GetQuestData()
     local Level = Player.Data.Level.Value
-
+    
+    -- 🔍 نبحث عن الكويست المناسب (من الأكبر للأصغر عشان نتأكد)
+    local SelectedQuest = QuestList[1] -- Default
+    
     for _, quest in pairs(QuestList) do
         if Level >= quest.Lvl[1] and Level <= quest.Lvl[2] then
-            return quest
+            SelectedQuest = quest
+            break
         end
     end
-
-    return QuestList[1]
+    
+    -- 📊 Debug Info
+    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    print("🎯 YOUR LEVEL: " .. Level)
+    print("📜 SELECTED QUEST: " .. SelectedQuest.Enemy)
+    print("📍 LEVEL RANGE: " .. SelectedQuest.Lvl[1] .. " - " .. SelectedQuest.Lvl[2])
+    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    
+    return SelectedQuest
 end
 
--- ========== BYPASS TELEPORT SYSTEM ==========
+-- =============================================
+-- IMPROVED TELEPORT WITH BYPASS
+-- =============================================
 function BypassTeleport(targetPos)
     if not RootPart then return end
 
     local Distance = (targetPos.Position - RootPart.Position).Magnitude
 
-    -- إذا قريب، ننتقل عادي
     if Distance < 1000 then
         local Tween = TweenService:Create(
             RootPart,
@@ -328,7 +340,6 @@ function BypassTeleport(targetPos)
         return
     end
 
-    -- إذا بعيد، نقسم المسافة على Checkpoints
     EnableNoClip()
 
     local Checkpoints = math.floor(Distance / 1000)
@@ -339,27 +350,24 @@ function BypassTeleport(targetPos)
     for i = 1, Checkpoints do
         local CheckpointPos = RootPart.Position + (Direction * 1000)
         RootPart.CFrame = CFrame.new(CheckpointPos)
-        wait(0.1)
+        task.wait(0.1)
     end
 
-    -- الوصول للهدف النهائي
     RootPart.CFrame = targetPos
-    wait(0.5)
+    task.wait(0.5)
 
     DisableNoClip()
 end
 
--- ========== INSTANT TP (خطير - قد يسبب Kick) ==========
 function InstantTP(targetPos)
     if not RootPart then return end
 
     EnableNoClip()
     RootPart.CFrame = targetPos
-    wait(0.5)
+    task.wait(0.5)
     DisableNoClip()
 end
 
--- ========== MAIN TELEPORT FUNCTION ==========
 function TweenToPosition(pos, description)
     if not RootPart then return end
 
@@ -431,24 +439,20 @@ function TakeQuest(questData)
 
     print("📜 Taking Quest: " .. questData.Enemy)
 
-    -- الذهاب للـ Quest Giver
     TweenToPosition(questData.QuestPos, "Going to Quest Giver")
-    wait(1)
+    task.wait(1)
 
-    -- قرب من الـ NPC
     RootPart.CFrame = questData.QuestPos * CFrame.new(0, 2, -3)
-    wait(0.8)
+    task.wait(0.8)
 
-    -- أخذ الكويست
     ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", questData.Quest, questData.QuestLvl)
-    wait(1.5)
+    task.wait(1.5)
 
-    -- محاولة ثانية لو فشل
     if not CheckQuest(questData.Enemy) then
         RootPart.CFrame = questData.QuestPos * CFrame.new(0, 0, -2)
-        wait(0.5)
+        task.wait(0.5)
         ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", questData.Quest, questData.QuestLvl)
-        wait(1)
+        task.wait(1)
     end
 
     if CheckQuest(questData.Enemy) then
@@ -494,16 +498,14 @@ function StartFarm()
         pcall(function()
             local Quest = GetQuestData()
             
-            -- خطوة 1: أخذ الكويست
             if not CheckQuest(Quest.Enemy) then
                 StopFastAttack()
                 print("🎯 Target: " .. Quest.Enemy)
                 TakeQuest(Quest)
-                wait(2)
+                task.wait(2)
                 return
             end
             
-            -- خطوة 2: البحث عن العدو
             local Enemy = nil
             for _, mob in pairs(game.Workspace.Enemies:GetChildren()) do
                 if mob.Name == Quest.Enemy and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
@@ -512,7 +514,6 @@ function StartFarm()
                 end
             end
             
-            -- خطوة 3: القتال
             if Enemy and Enemy:FindFirstChild("HumanoidRootPart") then
                 EnableHaki()
                 EquipWeapon(getgenv().Config.SelectedWeapon)
@@ -530,7 +531,7 @@ function StartFarm()
                 if Quest.MobPos then
                     print("🔍 Searching for mobs...")
                     TweenToPosition(Quest.MobPos, "Going to Mob Spawn")
-                    wait(3)
+                    task.wait(3)
                 end
             end
         end)
@@ -580,7 +581,7 @@ FarmToggle:OnChanged(function(v)
         local Quest = GetQuestData()
         Fluent:Notify({
             Title = "Vortex Hub", 
-            Content = "Farming: " .. Quest.Enemy, 
+            Content = "Farming: " .. Quest.Enemy .. " (Lvl " .. Quest.Lvl[1] .. "-" .. Quest.Lvl[2] .. ")", 
             Duration = 5
         })
     else
@@ -630,7 +631,7 @@ Tabs.Stats:AddToggle("Gun", {Title = "Auto Gun"}):OnChanged(function(v) Stats.Gu
 Tabs.Stats:AddToggle("Fruit", {Title = "Auto Fruit"}):OnChanged(function(v) Stats.Fruit = v end)
 
 spawn(function()
-    while wait(0.2) do
+    while task.wait(0.2) do
         pcall(function()
             if Stats.Melee then ReplicatedStorage.Remotes.CommF_:InvokeServer("AddPoint", "Melee", 1) end
             if Stats.Defense then ReplicatedStorage.Remotes.CommF_:InvokeServer("AddPoint", "Defense", 1) end
